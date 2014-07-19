@@ -14,8 +14,8 @@ Feel free to help ;)
 ### What is this repository for? ###
 
 * Main repo for the Pomotivity app
-** I will actively merge Pull Requests that make sense
-** I will reference any variations of the app that add something special
+* * I will actively merge Pull Requests that make sense
+* * I will reference any variations of the app that add something special
 * Version: 0.0.∞ (just started dev)
 
 ### How do I get set up? ###
