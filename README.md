@@ -4,10 +4,10 @@ Pomotivity is a simple and fun productivity application that follows the **Pomod
 
 -----
 
-I started the project to learn more about Google's Material Design, but since I'm onto it, why not creating something I could use?  
+I started the project to learn more about *Google's Material Design*, but since I'm onto it, why not creating something I could use?  
 
-I wasn't happy having to remember and manually switch off notifications during my pomodoros. With Pomotivity that shouldn't be a problem.  
-Also, for the geeks out there, it integrates with IFTTT in case you need something more flexible.
+I wasn't happy having to remember and manually switch off notifications during my pomodoros. With **Pomotivity** that shouldn't be a problem.  
+Also, for the geeks out there, it integrates with *IFTTT* in case you need something more flexible.
 
 Feel free to help ;)
 
