@@ -23,12 +23,11 @@ public class PomodoroApi {
 
   private static PomodoroApi mInstance = null;
 
-  private final ScheduledExecutorService mExecutionService =
-      Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService         mExecutionService = Executors.newSingleThreadScheduledExecutor();
+  private       AtomicReference<ScheduledFuture> mCurrentPomodoro  = new AtomicReference<ScheduledFuture>();
 
-  private AtomicReference<ScheduledFuture> mCurrentPomodoro =
-      new AtomicReference<ScheduledFuture>();
-  private boolean                          mIsPaused        = false;
+  private boolean mIsPaused  = false;
+  private boolean mAutoStart = false;
 
   public static PomodoroApi getInstance() {
     if (mInstance == null) {
@@ -42,10 +41,7 @@ public class PomodoroApi {
   /**
    * Starts the pomodoro timer.
    *
-   * @throws com.mindfulst.dneves.pomotivity.PomodoroApi.AlreadyRunningException if you call this
-   *                                                                             method while a
-   *                                                                             pomodoro is
-   *                                                                             running.
+   * @throws com.mindfulst.dneves.pomotivity.PomodoroApi.AlreadyRunningException if a pomodoro is already running.
    */
   public synchronized void start() throws AlreadyRunningException {
     // We don't care if it stops after this point, only that you called it while it was logically
@@ -69,6 +65,13 @@ public class PomodoroApi {
         if (mCurrentTime <= 0) {
           Log.d(DEBUG_TAG, "Timer ended after " + ((System.nanoTime() - mStartTime) * 1e-9));
           stop();
+          if (mAutoStart) {
+            try {
+              start();
+            } catch (AlreadyRunningException e) {
+              Log.w(DEBUG_TAG, "It failed to auto-start because it was already running, but I just stopped...");
+            }
+          }
         }
         else {
           Log.d(DEBUG_TAG, "Timer: " + mCurrentTime);
@@ -78,8 +81,7 @@ public class PomodoroApi {
 
     Log.i(DEBUG_TAG, "Time started");
     mIsPaused = false;
-    mCurrentPomodoro
-        .set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
+    mCurrentPomodoro.set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
   }
 
   /**
@@ -109,5 +111,15 @@ public class PomodoroApi {
     // This means that we may have to wait almost a second before the next run, but it's a simple
     // mechanism ;)
     mIsPaused = false;
+  }
+
+  /**
+   * Sets the auto start flag.
+   * If set to true, when a pomodoro finishes, another one will start immediately.
+   *
+   * @param autoStart new value.
+   */
+  protected void setAutoStart(boolean autoStart) {
+    mAutoStart = autoStart;
   }
 }

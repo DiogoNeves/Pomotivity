@@ -146,9 +146,15 @@ public class MainActivity extends Activity {
     @Override
     public void onClick(View view) {
       try {
-        PomodoroApi.getInstance().start();
+        PomodoroApi api = PomodoroApi.getInstance();
+        api.start();
+        api.setAutoStart(true);
+        Thread.sleep(11000);
+        api.setAutoStart(false);
       }
       catch (PomodoroApi.AlreadyRunningException e) {
+        e.printStackTrace();
+      } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
