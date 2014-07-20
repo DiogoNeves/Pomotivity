@@ -19,7 +19,9 @@ public class PomodoroApi {
 
   private static final String DEBUG_TAG         = "pomoapi";
   // 25 mins in seconds
-  private static final int    POMODORO_DURATION = 25 * 60;
+  private static final int    POMODORO_DURATION = 25;
+
+  private static PomodoroApi mInstance = null;
 
   private final ScheduledExecutorService mExecutionService =
       Executors.newSingleThreadScheduledExecutor();
@@ -28,17 +30,31 @@ public class PomodoroApi {
       new AtomicReference<ScheduledFuture>();
   private boolean                          mIsPaused        = false;
 
+  public static PomodoroApi getInstance() {
+    if (mInstance == null) {
+      mInstance = new PomodoroApi();
+    }
+    return mInstance;
+  }
+
+  private PomodoroApi() {}
+
   /**
    * Starts the pomodoro timer.
-   * <p/>
-   * This method isn't thread-safe and assumes you always call it from the same thread.
    *
    * @throws com.mindfulst.dneves.pomotivity.PomodoroApi.AlreadyRunningException if you call this
    *                                                                             method while a
    *                                                                             pomodoro is
    *                                                                             running.
    */
-  public void start() throws AlreadyRunningException {
+  public synchronized void start() throws AlreadyRunningException {
+    // We don't care if it stops after this point, only that you called it while it was logically
+    // running. Also, it is synchronized so, if it is null, there's no way it'll get another value
+    // after this point ;)
+    if (mCurrentPomodoro.get() != null) {
+      throw new AlreadyRunningException();
+    }
+
     final Runnable pomodoroTick = new Runnable() {
       private int mCurrentTime = POMODORO_DURATION;
       private final long mStartTime = System.nanoTime();
@@ -60,16 +76,10 @@ public class PomodoroApi {
       }
     };
 
-    if (!mCurrentPomodoro.compareAndSet(null, mExecutionService
-        .scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS))) {
-      throw new AlreadyRunningException();
-    }
-    else {
-      // Set it here because there might be a paused timer already and we don't want to reset its
-      // state do we? We have a second to do it ;) no need to panic
-      mIsPaused = false;
-      Log.i(DEBUG_TAG, "Timer started");
-    }
+    Log.i(DEBUG_TAG, "Time started");
+    mIsPaused = false;
+    mCurrentPomodoro
+        .set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
   }
 
   /**
