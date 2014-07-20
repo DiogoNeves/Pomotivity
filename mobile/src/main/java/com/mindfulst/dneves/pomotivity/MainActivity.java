@@ -112,6 +112,7 @@ public class MainActivity extends Activity {
     // operations to prevent the jarring behavior of controls going away
     // while interacting with the UI.
     findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+    findViewById(R.id.test_button).setOnClickListener(mTestButtonListener);
   }
 
   @Override
@@ -137,6 +138,21 @@ public class MainActivity extends Activity {
         delayedHide(AUTO_HIDE_DELAY_MILLIS);
       }
       return false;
+    }
+  };
+
+  View.OnClickListener mTestButtonListener = new View.OnClickListener() {
+
+    @Override
+    public void onClick(View view) {
+      PomodoroApi api = new PomodoroApi();
+      try {
+        api.start();
+        api.pause();
+      }
+      catch (PomodoroApi.AlreadyRunningException e) {
+        e.printStackTrace();
+      }
     }
   };
 
