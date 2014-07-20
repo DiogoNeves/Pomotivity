@@ -12,14 +12,44 @@ import java.util.concurrent.atomic.AtomicReference;
  * Class responsible for communicating with the underlying pomodoro logic.
  * <p/>
  * This serves as a layer between the UI on the various devices and the logic.
+ * Notifications, sounds, UI and update of third party services (e.g. sharing) are outside the scope of the API.
+ * State, core logic and methods are the scope of this API.
+ * <p/>
  * P.s. Also a nice way for me to hack the whole thing here and move to the right place later ;)
  */
 public class PomodoroApi {
   public class AlreadyRunningException extends Exception {}
 
+  /**
+   * Class responsible for keeping simple stats state.
+   */
+  public static final class Stats {
+    public final int finishedToday;
+    public final int allTime;
+
+    protected Stats() {
+      finishedToday = 0;
+      allTime = 0;
+    }
+
+    protected Stats(int finishedToday, int allTime) {
+      this.finishedToday = finishedToday;
+      this.allTime = allTime;
+    }
+
+    protected static Stats incrementCounter(final Stats last) {
+      return new Stats(last.finishedToday + 1, last.allTime + 1);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("PomodoroApi.Stats(finishedToday:%d, allTime:%d)", finishedToday, allTime);
+    }
+  }
+
   private static final String DEBUG_TAG         = "pomoapi";
   // 25 mins in seconds
-  private static final int    POMODORO_DURATION = 25;
+  private static final int    POMODORO_DURATION = 2;
 
   private static PomodoroApi mInstance = null;
 
@@ -28,6 +58,8 @@ public class PomodoroApi {
 
   private boolean mIsPaused  = false;
   private boolean mAutoStart = false;
+
+  private Stats mStats = new Stats();
 
   public static PomodoroApi getInstance() {
     if (mInstance == null) {
@@ -65,10 +97,12 @@ public class PomodoroApi {
         if (mCurrentTime <= 0) {
           Log.d(DEBUG_TAG, "Timer ended after " + ((System.nanoTime() - mStartTime) * 1e-9));
           stop();
+          incrementStats();
           if (mAutoStart) {
             try {
               start();
-            } catch (AlreadyRunningException e) {
+            }
+            catch (AlreadyRunningException e) {
               Log.w(DEBUG_TAG, "It failed to auto-start because it was already running, but I just stopped...");
             }
           }
@@ -82,6 +116,11 @@ public class PomodoroApi {
     Log.i(DEBUG_TAG, "Time started");
     mIsPaused = false;
     mCurrentPomodoro.set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
+  }
+
+  private void incrementStats() {
+    mStats = Stats.incrementCounter(mStats);
+    Log.d(DEBUG_TAG, "Current stats: " + mStats);
   }
 
   /**
