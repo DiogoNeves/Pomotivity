@@ -111,8 +111,8 @@ public class MainActivity extends Activity {
     // Upon interacting with UI controls, delay any scheduled hide()
     // operations to prevent the jarring behavior of controls going away
     // while interacting with the UI.
-    findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-    findViewById(R.id.test_button).setOnClickListener(mTestButtonListener);
+    findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
+    findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
   }
 
   @Override
@@ -131,30 +131,23 @@ public class MainActivity extends Activity {
    * system UI. This is to prevent the jarring behavior of controls going away
    * while interacting with activity UI.
    */
-  View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+  View.OnClickListener mStopButtonListener = new View.OnClickListener() {
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-      if (AUTO_HIDE) {
-        delayedHide(AUTO_HIDE_DELAY_MILLIS);
-      }
-      return false;
+    public void onClick(View view) {
+      PomodoroApi.getInstance().stop();
     }
   };
 
-  View.OnClickListener mTestButtonListener = new View.OnClickListener() {
+  View.OnClickListener mStartButtonListener = new View.OnClickListener() {
 
     @Override
     public void onClick(View view) {
       try {
         PomodoroApi api = PomodoroApi.getInstance();
-        api.start();
         api.setAutoStart(true);
-        Thread.sleep(11000);
-        api.setAutoStart(false);
+        api.start();
       }
       catch (PomodoroApi.AlreadyRunningException e) {
-        e.printStackTrace();
-      } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
