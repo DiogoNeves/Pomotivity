@@ -9,7 +9,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Created by dneves on 20/07/2014.
+ * Class responsible for communicating with the underlying pomodoro logic.
+ * <p/>
+ * This serves as a layer between the UI on the various devices and the logic.
+ * P.s. Also a nice way for me to hack the whole thing here and move to the right place later ;)
  */
 public class PomodoroApi {
   public class AlreadyRunningException extends Exception {}
@@ -93,6 +96,8 @@ public class PomodoroApi {
    */
   protected void resume() {
     Log.i(DEBUG_TAG, "Timer resumed");
+    // This means that we may have to wait almost a second before the next run, but it's a simple
+    // mechanism ;)
     mIsPaused = false;
   }
 }
