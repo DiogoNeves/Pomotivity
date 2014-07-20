@@ -148,7 +148,6 @@ public class MainActivity extends Activity {
       PomodoroApi api = new PomodoroApi();
       try {
         api.start();
-        api.pause();
       }
       catch (PomodoroApi.AlreadyRunningException e) {
         e.printStackTrace();
