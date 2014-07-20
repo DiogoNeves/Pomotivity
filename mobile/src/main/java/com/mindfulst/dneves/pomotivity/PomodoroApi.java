@@ -16,7 +16,7 @@ public class PomodoroApi {
 
   private static final String DEBUG_TAG         = "pomoapi";
   // 25 mins in seconds
-  private static final int    POMODORO_DURATION = 5;
+  private static final int    POMODORO_DURATION = 25 * 60;
 
   private final ScheduledExecutorService mExecutionService =
       Executors.newSingleThreadScheduledExecutor();
