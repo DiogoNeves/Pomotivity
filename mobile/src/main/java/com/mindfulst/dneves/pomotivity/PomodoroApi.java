@@ -2,6 +2,9 @@ package com.mindfulst.dneves.pomotivity;
 
 import android.util.Log;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -26,30 +29,51 @@ public class PomodoroApi {
   public static final class Stats {
     public final int finishedToday;
     public final int allTime;
+    public final int totalDays;
 
     protected Stats() {
       finishedToday = 0;
       allTime = 0;
+      totalDays = 0;
     }
 
-    protected Stats(int finishedToday, int allTime) {
+    protected Stats(int finishedToday, int allTime, int totalDays) {
       this.finishedToday = finishedToday;
       this.allTime = allTime;
+      this.totalDays = totalDays;
     }
 
+    /**
+     * Increments both finished today and all time.
+     *
+     * @param last last known Stats.
+     * @return new Stats instance with the incremented counters.
+     */
     protected static Stats incrementCounter(final Stats last) {
-      return new Stats(last.finishedToday + 1, last.allTime + 1);
+      return new Stats(last.finishedToday + 1, last.allTime + 1, last.totalDays);
+    }
+
+    /**
+     * Increments the day counter.
+     * This will reset the finishedToday value.
+     *
+     * @param last last known Stats.
+     * @return new Stats instance with the information about the next day.
+     */
+    protected static Stats nextDay(final Stats last) {
+      return new Stats(0, last.allTime, last.totalDays + 1);
     }
 
     @Override
     public String toString() {
-      return String.format("PomodoroApi.Stats(finishedToday:%d, allTime:%d)", finishedToday, allTime);
+      return String
+          .format("PomodoroApi.Stats(finishedToday:%d, allTime:%d, totalDays:%d)", finishedToday, allTime, totalDays);
     }
   }
 
   private static final String DEBUG_TAG         = "pomoapi";
   // 25 mins in seconds
-  private static final int    POMODORO_DURATION = 2;
+  private static final int    POMODORO_DURATION = 25 * 60;
 
   private static PomodoroApi mInstance = null;
 
@@ -59,7 +83,8 @@ public class PomodoroApi {
   private boolean mIsPaused  = false;
   private boolean mAutoStart = false;
 
-  private Stats mStats = new Stats();
+  private Stats    mStats            = new Stats();
+  private DateTime mLastPomodoroDate = new DateTime(0).withTime(4, 0, 0, 0);
 
   public static PomodoroApi getInstance() {
     if (mInstance == null) {
@@ -120,6 +145,13 @@ public class PomodoroApi {
 
   private void incrementStats() {
     mStats = Stats.incrementCounter(mStats);
+    // We consider the start of the day at 4am as this should be the least convenient time to use pomodoros
+    // see https://www.ted.com/talks/rives_on_4_a_m
+    DateTime now = DateTime.now().withTime(4, 0, 0, 0);
+    if (Days.daysBetween(now, mLastPomodoroDate).getDays() != 0) {
+      mStats = Stats.nextDay(mStats);
+      mLastPomodoroDate = now;
+    }
     Log.d(DEBUG_TAG, "Current stats: " + mStats);
   }
 
