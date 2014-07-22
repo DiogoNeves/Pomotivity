@@ -2,10 +2,11 @@ package com.mindfulst.dneves.pomotivity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.mindfulst.dneves.pomotivity.util.SystemUiHider;
@@ -50,6 +51,9 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    PomodoroApi.getInstance().setStats(
+        new PomodoroApi.Stats(this, getSharedPreferences(getString(R.string.stats_pref_file), Context.MODE_PRIVATE)));
+
     setContentView(R.layout.activity_main);
 
     final View controlsView = findViewById(R.id.fullscreen_content_controls);
@@ -78,8 +82,7 @@ public class MainActivity extends Activity {
           if (mShortAnimTime == 0) {
             mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
           }
-          controlsView.animate().translationY(visible ? 0 : mControlsHeight)
-                      .setDuration(mShortAnimTime);
+          controlsView.animate().translationY(visible ? 0 : mControlsHeight).setDuration(mShortAnimTime);
         }
         else {
           // If the ViewPropertyAnimator APIs aren't
@@ -123,6 +126,15 @@ public class MainActivity extends Activity {
     // created, to briefly hint to the user that UI controls
     // are available.
     delayedHide(100);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    SharedPreferences.Editor statsEditor =
+        getSharedPreferences(getString(R.string.stats_pref_file), Context.MODE_PRIVATE).edit();
+    PomodoroApi.getInstance().getStats().save(this, statsEditor);
+    statsEditor.apply();
   }
 
 
