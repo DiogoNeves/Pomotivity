@@ -2,11 +2,10 @@ package com.mindfulst.dneves.pomotivity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.mindfulst.dneves.pomotivity.util.SystemUiHider;
@@ -51,9 +50,6 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    PomodoroApi.getInstance().setStats(
-        new PomodoroApi.Stats(this, getSharedPreferences(getString(R.string.stats_pref_file), Context.MODE_PRIVATE)));
-
     setContentView(R.layout.activity_main);
 
     final View controlsView = findViewById(R.id.fullscreen_content_controls);
@@ -82,7 +78,8 @@ public class MainActivity extends Activity {
           if (mShortAnimTime == 0) {
             mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
           }
-          controlsView.animate().translationY(visible ? 0 : mControlsHeight).setDuration(mShortAnimTime);
+          controlsView.animate().translationY(visible ? 0 : mControlsHeight)
+                      .setDuration(mShortAnimTime);
         }
         else {
           // If the ViewPropertyAnimator APIs aren't
@@ -114,8 +111,8 @@ public class MainActivity extends Activity {
     // Upon interacting with UI controls, delay any scheduled hide()
     // operations to prevent the jarring behavior of controls going away
     // while interacting with the UI.
-    findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
-    findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
+    findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+    findViewById(R.id.test_button).setOnClickListener(mTestButtonListener);
   }
 
   @Override
@@ -128,36 +125,28 @@ public class MainActivity extends Activity {
     delayedHide(100);
   }
 
-  @Override
-  protected void onPause() {
-    super.onPause();
-    SharedPreferences.Editor statsEditor =
-        getSharedPreferences(getString(R.string.stats_pref_file), Context.MODE_PRIVATE).edit();
-    PomodoroApi.getInstance().getStats().save(this, statsEditor);
-    statsEditor.apply();
-  }
-
 
   /**
    * Touch listener to use for in-layout UI controls to delay hiding the
    * system UI. This is to prevent the jarring behavior of controls going away
    * while interacting with activity UI.
    */
-  View.OnClickListener mStopButtonListener = new View.OnClickListener() {
+  View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
     @Override
-    public void onClick(View view) {
-      PomodoroApi.getInstance().stop();
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+      if (AUTO_HIDE) {
+        delayedHide(AUTO_HIDE_DELAY_MILLIS);
+      }
+      return false;
     }
   };
 
-  View.OnClickListener mStartButtonListener = new View.OnClickListener() {
+  View.OnClickListener mTestButtonListener = new View.OnClickListener() {
 
     @Override
     public void onClick(View view) {
       try {
-        PomodoroApi api = PomodoroApi.getInstance();
-        api.setAutoStart(true);
-        api.start();
+        PomodoroApi.getInstance().start();
       }
       catch (PomodoroApi.AlreadyRunningException e) {
         e.printStackTrace();
