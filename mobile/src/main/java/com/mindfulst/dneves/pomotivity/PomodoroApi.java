@@ -32,16 +32,21 @@ public class PomodoroApi {
   public class AlreadyRunningException extends Exception {}
 
   public final class PomodoroEvent extends EventObject {
+    public final PomodoroState state;
     public final int progress;
 
     /**
      * Constructor.
      *
      * @param source PomodoroApi that triggered the event.
+     * @param currentState Current pomodoro state.
      * @param progress Milliseconds since the current state started (break or pomodoro).
+     *
+     * @see com.mindfulst.dneves.pomotivity.PomodoroApi.PomodoroState
      */
-    protected PomodoroEvent(Object source, int progress) {
+    protected PomodoroEvent(Object source, PomodoroState currentState, int progress) {
       super(source);
+      this.state = currentState;
       this.progress = progress;
     }
   }
@@ -62,6 +67,10 @@ public class PomodoroApi {
     public void paused(PomodoroEvent event);
     public void resumed(PomodoroEvent event);
   };
+
+  public enum PomodoroState {
+    STARTED, SHORT_BREAK, LONG_BREAK, FINISHED
+  }
 
   /**
    * Class responsible for keeping simple stats state.
