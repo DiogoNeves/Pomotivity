@@ -9,6 +9,10 @@ import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -26,6 +30,38 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class PomodoroApi {
   public class AlreadyRunningException extends Exception {}
+
+  public final class PomodoroEvent extends EventObject {
+    public final int progress;
+
+    /**
+     * Constructor.
+     *
+     * @param source PomodoroApi that triggered the event.
+     * @param progress Milliseconds since the current state started (break or pomodoro).
+     */
+    protected PomodoroEvent(Object source, int progress) {
+      super(source);
+      this.progress = progress;
+    }
+  }
+
+  /**
+   * Interface to be implemented by all listeners of pomodoro actions.
+   *
+   * On a typical pomodoro the order of the events are:
+   *
+   */
+  public interface PomodoroEventListener extends EventListener {
+    public void pomodoroStarted(PomodoroEvent event);
+    public void pomodoroTicked(PomodoroEvent event);
+    public void breakStarted(PomodoroEvent event);
+    public void pomodoroFinished(PomodoroEvent event);
+
+    public void stopped(PomodoroEvent event);
+    public void paused(PomodoroEvent event);
+    public void resumed(PomodoroEvent event);
+  };
 
   /**
    * Class responsible for keeping simple stats state.
@@ -121,6 +157,8 @@ public class PomodoroApi {
   private static final int    POMODORO_DURATION = 25 * 60;
 
   private static PomodoroApi mInstance = null;
+
+  private List<PomodoroEventListener> mListeners = new ArrayList<PomodoroEventListener>();
 
   private final ScheduledExecutorService         mExecutionService = Executors.newSingleThreadScheduledExecutor();
   private       AtomicReference<ScheduledFuture> mCurrentPomodoro  = new AtomicReference<ScheduledFuture>();
@@ -274,5 +312,13 @@ public class PomodoroApi {
    */
   protected void setAutoStart(boolean autoStart) {
     mAutoStart = autoStart;
+  }
+
+  public void addPomodoroListener(PomodoroEventListener listener) {
+    mListeners.add(listener);
+  }
+
+  public void removePomodoroListener(PomodoroEventListener listener) {
+    mListeners.remove(listener);
   }
 }
