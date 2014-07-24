@@ -25,5 +25,4 @@ dependencies {
     compile 'com.google.android.gms:play-services-wearable:+'
     // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v4:19.+'
-    compile 'joda-time:joda-time:2.1'
 }

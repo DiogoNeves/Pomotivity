@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="finished_today_key">today</string>
-    <string name="all_time_key">all</string>
-    <string name="total_days_key">days</string>
-    <string name="stats_pref_file">stats</string>
-</resources>
