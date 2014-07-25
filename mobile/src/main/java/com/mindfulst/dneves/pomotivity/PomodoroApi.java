@@ -50,10 +50,23 @@ public class PomodoroApi {
    * On a typical pomodoro the order of the events are:
    */
   public interface PomodoroEventListener extends EventListener {
+    /**
+     * Action triggered when a new Pomodoro starts.
+     * @param event Information about the Pomodoro Event.
+     */
     public void pomodoroStarted(final PomodoroEvent event);
 
+    /**
+     * Action triggered every time the clock ticks.
+     * WARNING: Not guaranteed to be called from the UI thread!
+     * @param event Information about the Pomodoro Event.
+     */
     public void pomodoroTicked(final PomodoroEvent event);
 
+    /**
+     * Action triggered when the current Pomodoro finishes.
+     * @param event Information about the Pomodoro Event.
+     */
     public void pomodoroFinished(final PomodoroEvent event);
   }
 
