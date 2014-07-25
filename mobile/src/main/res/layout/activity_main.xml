@@ -37,22 +37,38 @@
             tools:ignore="UselessParent">
 
             <Button
-                android:id="@+id/dummy_button"
+                android:id="@+id/start_button"
                 style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/dummy_button"/>
+                android:text="@string/start_button"/>
 
             <Button
-                android:id="@+id/test_button"
+                android:id="@+id/stop_button"
                 style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/test_button"/>
+                android:text="@string/stop_button"/>
 
         </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/current_time"
+            android:id="@+id/current_time"
+            android:layout_gravity="left|top"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/last_action"
+            android:id="@+id/last_action"
+            android:layout_gravity="left|center_vertical"/>
     </FrameLayout>
 
 </FrameLayout>
