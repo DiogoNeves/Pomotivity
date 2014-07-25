@@ -117,17 +117,22 @@ public class MainActivity extends Activity {
 
     PomodoroApi.getInstance().setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
-      public void pomodoroStarted(PomodoroApi.PomodoroEvent event) {
+      public void pomodoroStarted(final PomodoroApi.PomodoroEvent event) {
         ((TextView)findViewById(R.id.last_action)).setText("started");
       }
 
       @Override
-      public void pomodoroTicked(PomodoroApi.PomodoroEvent event) {
-        ((TextView)findViewById(R.id.current_time)).setText(event.progress);
+      public void pomodoroTicked(final PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            ((TextView)findViewById(R.id.current_time)).setText(String.valueOf(event.currentTime));
+          }
+        });
       }
 
       @Override
-      public void pomodoroFinished(PomodoroApi.PomodoroEvent event) {
+      public void pomodoroFinished(final PomodoroApi.PomodoroEvent event) {
         ((TextView)findViewById(R.id.last_action)).setText("finished");
       }
     });
