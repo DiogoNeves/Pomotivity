@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 import com.mindfulst.dneves.pomotivity.util.SystemUiHider;
 
@@ -111,8 +112,25 @@ public class MainActivity extends Activity {
     // Upon interacting with UI controls, delay any scheduled hide()
     // operations to prevent the jarring behavior of controls going away
     // while interacting with the UI.
-    findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-    findViewById(R.id.test_button).setOnClickListener(mTestButtonListener);
+    findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
+    findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
+
+    PomodoroApi.getInstance().setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
+      @Override
+      public void pomodoroStarted(PomodoroApi.PomodoroEvent event) {
+        ((TextView)findViewById(R.id.last_action)).setText("started");
+      }
+
+      @Override
+      public void pomodoroTicked(PomodoroApi.PomodoroEvent event) {
+        ((TextView)findViewById(R.id.current_time)).setText(event.progress);
+      }
+
+      @Override
+      public void pomodoroFinished(PomodoroApi.PomodoroEvent event) {
+        ((TextView)findViewById(R.id.last_action)).setText("finished");
+      }
+    });
   }
 
   @Override
@@ -141,22 +159,24 @@ public class MainActivity extends Activity {
     }
   };
 
-  View.OnClickListener mTestButtonListener = new View.OnClickListener() {
+  View.OnClickListener mStartButtonListener = new View.OnClickListener() {
 
     @Override
     public void onClick(View view) {
       try {
-        PomodoroApi api = PomodoroApi.getInstance();
-        api.start();
-        api.setAutoStart(true);
-        Thread.sleep(11000);
-        api.setAutoStart(false);
+        PomodoroApi.getInstance().start();
       }
       catch (PomodoroApi.AlreadyRunningException e) {
         e.printStackTrace();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
       }
+    }
+  };
+
+  View.OnClickListener mStopButtonListener = new View.OnClickListener() {
+
+    @Override
+    public void onClick(View view) {
+      PomodoroApi.getInstance().stop();
     }
   };
 
