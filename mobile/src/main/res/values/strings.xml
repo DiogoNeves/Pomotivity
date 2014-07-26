@@ -10,5 +10,6 @@
     <string name="stop_button">STOP</string>
     <string name="start_button">START</string>
     <string name="pause_button">PAUSE</string>
+    <string name="resume_button">RESUME</string>
 
 </resources>

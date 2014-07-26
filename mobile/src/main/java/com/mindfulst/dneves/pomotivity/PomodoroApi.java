@@ -51,6 +51,16 @@ public class PomodoroApi {
    * Interface to be implemented by all listeners of pomodoro actions.
    * <p/>
    * On a typical pomodoro the order of the events are:
+   * pomodoroStarted - start() was called (could be user or auto-start)
+   * pomodoroTicked - this is called every second, including breaks, so the app can update the UI
+   * pomodoroEnded - this is called when the pomodoro part (before break) ends
+   * breakStarted - this is called immediately after the break part starts
+   * pomodoroFinished - this is called when both the pomodoro and break end or the stop() was called
+   * the best way to know if it was due to an early stop is to check if (event.currentTime > 0)
+   * <p/>
+   * At any point in time, while pomodoros are running:
+   * paused - called when pause() is called
+   * resumed - called when resume() is called
    */
   public interface PomodoroEventListener extends EventListener {
     /**
@@ -86,19 +96,33 @@ public class PomodoroApi {
     public void breakStarted(final PomodoroEvent event);
 
     /**
-     * Action triggered when the current Pomodoro finishes.
+     * Action triggered when the current Pomodoro finishes (could be early termination via stop()).
      * WARNING: Not guaranteed to be called from the UI thread!
      *
      * @param event Information about the Pomodoro Event.
      */
     public void pomodoroFinished(final PomodoroEvent event);
+
+    /**
+     * Action triggered when pause() is called.
+     *
+     * @param event Information about the Pomodoro Event.
+     */
+    public void paused(final PomodoroEvent event);
+
+    /**
+     * Action triggered when resume() is called.
+     *
+     * @param event Information about the Pomodoro Event.
+     */
+    public void resumed(final PomodoroEvent event);
   }
 
   /**
    * Enum with actions that can be notified to listeners.
    */
   private enum ListenerAction {
-    START, TICK, END_POMODORO, START_BREAK, FINISH
+    START, TICK, END_POMODORO, START_BREAK, FINISH, PAUSED, RESUMED
   }
 
   /**
@@ -204,9 +228,9 @@ public class PomodoroApi {
   private static final int    LONG_BREAK_DURATION  = 14 * 60;
   /*/
   // Test times (for debugging)
-  private static final int    POMODORO_DURATION = 6;
+  private static final int    POMODORO_DURATION    = 6;
   private static final int    SHORT_BREAK_DURATION = 3;
-  private static final int    LONG_BREAK_DURATION = 4;
+  private static final int    LONG_BREAK_DURATION  = 4;
   /**/
 
   private static PomodoroApi mInstance = null;
@@ -288,6 +312,16 @@ public class PomodoroApi {
       private void endPomodoro() {
         incrementStats();
         notifyListener(ListenerAction.END_POMODORO, 0, mCurrentState);
+
+        // Force other threads to update
+        try {
+          Thread.sleep(1);
+        }
+        catch (InterruptedException e) {
+          Log.d(DEBUG_TAG, "Ooops, thread was interruped");
+        }
+
+        // Start the break
         if (mStats.finishedToday % 4 == 0) {
           mCurrentState = PomodoroState.LONG_BREAK;
           mCurrentTime = LONG_BREAK_DURATION;
@@ -301,8 +335,6 @@ public class PomodoroApi {
 
       private void endBreak() {
         stop();
-        notifyListener(ListenerAction.FINISH, 0, mCurrentState);
-        mCurrentState = PomodoroState.NONE;
         if (mAutoStart) {
           try {
             // Force the UI to catch up and and give time to breath. We only need to do it here because of the
@@ -375,6 +407,12 @@ public class PomodoroApi {
         case FINISH:
           mListener.pomodoroFinished(event);
           break;
+        case PAUSED:
+          mListener.paused(event);
+          break;
+        case RESUMED:
+          mListener.resumed(event);
+          break;
       }
     }
     catch (Exception e) {
@@ -403,6 +441,9 @@ public class PomodoroApi {
     if (pomodoro != null) {
       pomodoro.cancel(false);
       Log.i(DEBUG_TAG, "Timer stopped");
+      // FIXME: This should know the current time (if it isn't 0 means the user called stop())
+      notifyListener(ListenerAction.FINISH, 0, mCurrentState);
+      mCurrentState = PomodoroState.NONE;
     }
   }
 
@@ -410,18 +451,36 @@ public class PomodoroApi {
    * Pauses the current timer or does nothing if no timer is running.
    */
   protected void pause() {
+    if (mIsPaused == true) {
+      return;
+    }
+
     mIsPaused = true;
     Log.i(DEBUG_TAG, "Timer paused");
+    ScheduledFuture pomodoro = mCurrentPomodoro.get();
+    if (pomodoro != null) {
+      // FIXME: This needs to know the current time... should I move inside the thread?
+      notifyListener(ListenerAction.PAUSED, 0, mCurrentState);
+    }
   }
 
   /**
    * Resumes the current timer or does nothing if no timer is running.
    */
   protected void resume() {
+    if (mIsPaused == false) {
+      return;
+    }
+
     Log.i(DEBUG_TAG, "Timer resumed");
     // This means that we may have to wait almost a second before the next run, but it's a simple
     // mechanism ;)
     mIsPaused = false;
+    ScheduledFuture pomodoro = mCurrentPomodoro.get();
+    if (pomodoro != null) {
+      // FIXME: This needs to know the current time... should I move inside the thread?
+      notifyListener(ListenerAction.RESUMED, 0, mCurrentState);
+    }
   }
 
   /**

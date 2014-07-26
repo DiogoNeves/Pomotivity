@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.mindfulst.dneves.pomotivity.util.SystemUiHider;
@@ -79,8 +80,7 @@ public class MainActivity extends Activity {
           if (mShortAnimTime == 0) {
             mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
           }
-          controlsView.animate().translationY(visible ? 0 : mControlsHeight)
-                      .setDuration(mShortAnimTime);
+          controlsView.animate().translationY(visible ? 0 : mControlsHeight).setDuration(mShortAnimTime);
         }
         else {
           // If the ViewPropertyAnimator APIs aren't
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
     PomodoroApi.getInstance().setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
       public void pomodoroStarted(final PomodoroApi.PomodoroEvent event) {
-        ((TextView)findViewById(R.id.last_action)).setText("started");
+        ((TextView) findViewById(R.id.last_action)).setText("started");
       }
 
       @Override
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            ((TextView)findViewById(R.id.current_time)).setText(String.valueOf(event.currentTime));
+            ((TextView) findViewById(R.id.current_time)).setText(String.valueOf(event.currentTime));
           }
         });
       }
@@ -137,7 +137,7 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            ((TextView)findViewById(R.id.last_action)).setText("ended");
+            ((TextView) findViewById(R.id.last_action)).setText("ended");
           }
         });
       }
@@ -148,7 +148,7 @@ public class MainActivity extends Activity {
           @Override
           public void run() {
             String breakName = event.currentState == PomodoroApi.PomodoroState.LONG_BREAK ? "long" : "short";
-            ((TextView)findViewById(R.id.last_action)).setText(breakName + " break started");
+            ((TextView) findViewById(R.id.last_action)).setText(breakName + " break started");
           }
         });
       }
@@ -158,7 +158,32 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            ((TextView)findViewById(R.id.last_action)).setText("finished");
+            if (event.currentTime > 0) {
+              ((TextView) findViewById(R.id.last_action)).setText("stopped");
+            }
+            else {
+              ((TextView) findViewById(R.id.last_action)).setText("finished");
+            }
+          }
+        });
+      }
+
+      @Override
+      public void paused(PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            ((TextView) findViewById(R.id.last_action)).setText("paused");
+          }
+        });
+      }
+
+      @Override
+      public void resumed(PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            ((TextView) findViewById(R.id.last_action)).setText("resumed");
           }
         });
       }
@@ -216,7 +241,15 @@ public class MainActivity extends Activity {
 
     @Override
     public void onClick(View view) {
-      PomodoroApi.getInstance().pause();
+      Button buttonView = ((Button) view);
+      if (buttonView.getText() == getString(R.string.pause_button)) {
+        PomodoroApi.getInstance().pause();
+        buttonView.setText(getString(R.string.resume_button));
+      }
+      else {
+        PomodoroApi.getInstance().resume();
+        buttonView.setText(getString(R.string.pause_button));
+      }
     }
   };
 
