@@ -204,9 +204,9 @@ public class PomodoroApi {
   private static final int    LONG_BREAK_DURATION  = 14 * 60;
   /*/
   // Test times (for debugging)
-  private static final int    POMODORO_DURATION = 5;
-  private static final int    SHORT_BREAK_DURATION = 1;
-  private static final int    LONG_BREAK_DURATION = 3;
+  private static final int    POMODORO_DURATION = 6;
+  private static final int    SHORT_BREAK_DURATION = 3;
+  private static final int    LONG_BREAK_DURATION = 4;
   /**/
 
   private static PomodoroApi mInstance = null;
