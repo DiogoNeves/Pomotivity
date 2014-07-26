@@ -305,7 +305,8 @@ public class PomodoroApi {
         mCurrentState = PomodoroState.NONE;
         if (mAutoStart) {
           try {
-            // Force the UI to catch up and and give time to breath
+            // Force the UI to catch up and and give time to breath. We only need to do it here because of the
+            // autostart, which will trigger another notification update immediately.
             Thread.sleep(1000);
             start();
           }
