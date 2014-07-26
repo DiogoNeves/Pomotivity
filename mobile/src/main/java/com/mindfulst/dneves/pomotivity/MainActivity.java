@@ -114,6 +114,7 @@ public class MainActivity extends Activity {
     // while interacting with the UI.
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
+    findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
 
     PomodoroApi.getInstance().setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
@@ -208,6 +209,14 @@ public class MainActivity extends Activity {
     @Override
     public void onClick(View view) {
       PomodoroApi.getInstance().stop();
+    }
+  };
+
+  View.OnClickListener mPauseButtonListener = new View.OnClickListener() {
+
+    @Override
+    public void onClick(View view) {
+      PomodoroApi.getInstance().pause();
     }
   };
 
