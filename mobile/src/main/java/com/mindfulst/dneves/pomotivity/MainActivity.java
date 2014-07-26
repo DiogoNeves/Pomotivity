@@ -132,6 +132,27 @@ public class MainActivity extends Activity {
       }
 
       @Override
+      public void pomodoroEnded(final PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            ((TextView)findViewById(R.id.last_action)).setText("ended");
+          }
+        });
+      }
+
+      @Override
+      public void breakStarted(final PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            String breakName = event.currentState == PomodoroApi.PomodoroState.LONG_BREAK ? "long" : "short";
+            ((TextView)findViewById(R.id.last_action)).setText(breakName + " break started");
+          }
+        });
+      }
+
+      @Override
       public void pomodoroFinished(final PomodoroApi.PomodoroEvent event) {
         ((TextView)findViewById(R.id.last_action)).setText("finished");
       }

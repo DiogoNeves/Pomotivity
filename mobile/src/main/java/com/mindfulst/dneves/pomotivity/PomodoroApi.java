@@ -30,17 +30,20 @@ public class PomodoroApi {
   public class AlreadyRunningException extends Exception {}
 
   public final class PomodoroEvent extends EventObject {
-    public final int currentTime;
+    public final int           currentTime;
+    public final PomodoroState currentState;
 
     /**
      * Constructor.
      *
-     * @param source   PomodoroApi that triggered the event.
-     * @param currentTime Milliseconds since the current state started (break or pomodoro).
+     * @param source       PomodoroApi that triggered the event.
+     * @param currentTime  Milliseconds since the current state started (break or pomodoro).
+     * @param currentState Current state of execution.
      */
-    protected PomodoroEvent(Object source, int currentTime) {
+    protected PomodoroEvent(Object source, int currentTime, PomodoroState currentState) {
       super(source);
       this.currentTime = currentTime;
+      this.currentState = currentState;
     }
   }
 
@@ -52,6 +55,7 @@ public class PomodoroApi {
   public interface PomodoroEventListener extends EventListener {
     /**
      * Action triggered when a new Pomodoro starts.
+     *
      * @param event Information about the Pomodoro Event.
      */
     public void pomodoroStarted(final PomodoroEvent event);
@@ -59,12 +63,32 @@ public class PomodoroApi {
     /**
      * Action triggered every time the clock ticks.
      * WARNING: Not guaranteed to be called from the UI thread!
+     *
      * @param event Information about the Pomodoro Event.
      */
     public void pomodoroTicked(final PomodoroEvent event);
 
     /**
+     * Action triggered when the Pomodoro part ends (before the break).
+     * WARNING: Not guaranteed to be called from the UI thread!
+     *
+     * @param event Information about the Pomodoro Event.
+     */
+    public void pomodoroEnded(final PomodoroEvent event);
+
+    /**
+     * Action triggered when the Break part starts.
+     * Same for short and long break. You can get the current state from the event object.
+     * WARNING: Not guaranteed to be called from the UI thread!
+     *
+     * @param event Information about the Pomodoro Event.
+     */
+    public void breakStarted(final PomodoroEvent event);
+
+    /**
      * Action triggered when the current Pomodoro finishes.
+     * WARNING: Not guaranteed to be called from the UI thread!
+     *
      * @param event Information about the Pomodoro Event.
      */
     public void pomodoroFinished(final PomodoroEvent event);
@@ -74,7 +98,14 @@ public class PomodoroApi {
    * Enum with actions that can be notified to listeners.
    */
   private enum ListenerAction {
-    START, TICK, FINISH
+    START, TICK, END_POMODORO, START_BREAK, FINISH
+  }
+
+  /**
+   * Enum with possible internal Pomodoro states.
+   */
+  public enum PomodoroState {
+    NONE, POMODORO, SHORT_BREAK, LONG_BREAK
   }
 
   /**
@@ -166,12 +197,16 @@ public class PomodoroApi {
     }
   }
 
-  private static final String DEBUG_TAG         = "pomoapi";
-  // 25 mins in seconds
+  private static final String DEBUG_TAG            = "pomoapi";
   /**/
-  private static final int    POMODORO_DURATION = 25 * 60;
+  private static final int    POMODORO_DURATION    = 25 * 60;
+  private static final int    SHORT_BREAK_DURATION = 5 * 60;
+  private static final int    LONG_BREAK_DURATION  = 14 * 60;
   /*/
+  // Test times (for debugging)
   private static final int    POMODORO_DURATION = 5;
+  private static final int    SHORT_BREAK_DURATION = 1;
+  private static final int    LONG_BREAK_DURATION = 3;
   /**/
 
   private static PomodoroApi mInstance = null;
@@ -184,8 +219,9 @@ public class PomodoroApi {
   private boolean mIsPaused  = false;
   private boolean mAutoStart = false;
 
-  private Stats    mStats            = new Stats();
-  private DateTime mLastPomodoroDate = new DateTime(0).withTime(4, 0, 0, 0);
+  private Stats         mStats            = new Stats();
+  private DateTime      mLastPomodoroDate = new DateTime(0).withTime(4, 0, 0, 0);
+  private PomodoroState mCurrentState     = PomodoroState.NONE;
 
   public static PomodoroApi getInstance() {
     if (mInstance == null) {
@@ -249,6 +285,34 @@ public class PomodoroApi {
       private int mCurrentTime = POMODORO_DURATION;
       private final long mStartTime = System.nanoTime();
 
+      private void endPomodoro() {
+        incrementStats();
+        notifyListener(ListenerAction.END_POMODORO, 0, mCurrentState);
+        if (mStats.finishedToday % 4 == 0) {
+          mCurrentState = PomodoroState.LONG_BREAK;
+          mCurrentTime = LONG_BREAK_DURATION;
+        }
+        else {
+          mCurrentState = PomodoroState.SHORT_BREAK;
+          mCurrentTime = SHORT_BREAK_DURATION;
+        }
+        notifyListener(ListenerAction.START_BREAK, mCurrentTime, mCurrentState);
+      }
+
+      private void endBreak() {
+        stop();
+        notifyListener(ListenerAction.FINISH, 0, mCurrentState);
+        mCurrentState = PomodoroState.NONE;
+        if (mAutoStart) {
+          try {
+            start();
+          }
+          catch (AlreadyRunningException e) {
+            Log.w(DEBUG_TAG, "It failed to auto-start because it was already running, but I just stopped...");
+          }
+        }
+      }
+
       @Override
       public void run() {
         if (mIsPaused) {
@@ -257,33 +321,30 @@ public class PomodoroApi {
 
         --mCurrentTime;
         if (mCurrentTime <= 0) {
-          Log.d(DEBUG_TAG, "Timer ended after " + ((System.nanoTime() - mStartTime) * 1e-9));
-          stop();
-          incrementStats();
-          notifyListener(ListenerAction.FINISH, 0);
-          if (mAutoStart) {
-            try {
-              start();
-            }
-            catch (AlreadyRunningException e) {
-              Log.w(DEBUG_TAG, "It failed to auto-start because it was already running, but I just stopped...");
-            }
+          if (mCurrentState == PomodoroState.POMODORO) {
+            Log.d(DEBUG_TAG, "Pomodoro ended after " + ((System.nanoTime() - mStartTime) * 1e-9));
+            endPomodoro();
+          }
+          else { // LONG or SHORT break
+            Log.d(DEBUG_TAG, "Pomodoro and break ended after " + ((System.nanoTime() - mStartTime) * 1e-9));
+            endBreak();
           }
         }
         else {
           Log.d(DEBUG_TAG, "Timer: " + mCurrentTime);
-          notifyListener(ListenerAction.TICK, mCurrentTime);
+          notifyListener(ListenerAction.TICK, mCurrentTime, mCurrentState);
         }
       }
     };
 
-    Log.i(DEBUG_TAG, "Time started");
+    Log.i(DEBUG_TAG, "Pomodoro started");
     mIsPaused = false;
+    mCurrentState = PomodoroState.POMODORO;
     mCurrentPomodoro.set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
-    notifyListener(ListenerAction.START, POMODORO_DURATION);
+    notifyListener(ListenerAction.START, POMODORO_DURATION, mCurrentState);
   }
 
-  private void notifyListener(ListenerAction action, int currentTime) {
+  private void notifyListener(ListenerAction action, int currentTime, PomodoroState state) {
     PomodoroEventListener listener = mListener;
     if (listener == null) {
       return;
@@ -291,12 +352,16 @@ public class PomodoroApi {
 
     try {
       // I used actions because creating and passing callables for something so static isn't convenient ;)
-      PomodoroEvent event = new PomodoroEvent(this, currentTime);
+      PomodoroEvent event = new PomodoroEvent(this, currentTime, state);
       switch (action) {
         case START:
           mListener.pomodoroStarted(event);
         case TICK:
           mListener.pomodoroTicked(event);
+        case END_POMODORO:
+          mListener.pomodoroEnded(event);
+        case START_BREAK:
+          mListener.breakStarted(event);
         case FINISH:
           mListener.pomodoroFinished(event);
       }
