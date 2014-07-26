@@ -154,7 +154,12 @@ public class MainActivity extends Activity {
 
       @Override
       public void pomodoroFinished(final PomodoroApi.PomodoroEvent event) {
-        ((TextView)findViewById(R.id.last_action)).setText("finished");
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            ((TextView)findViewById(R.id.last_action)).setText("finished");
+          }
+        });
       }
     });
   }
