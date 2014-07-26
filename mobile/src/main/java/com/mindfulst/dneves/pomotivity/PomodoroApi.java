@@ -305,10 +305,15 @@ public class PomodoroApi {
         mCurrentState = PomodoroState.NONE;
         if (mAutoStart) {
           try {
+            // Force the UI to catch up and and give time to breath
+            Thread.sleep(1000);
             start();
           }
           catch (AlreadyRunningException e) {
             Log.w(DEBUG_TAG, "It failed to auto-start because it was already running, but I just stopped...");
+          }
+          catch (InterruptedException e) {
+            Log.w(DEBUG_TAG, "Ooops, thread was interruped");
           }
         }
       }
