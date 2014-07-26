@@ -114,6 +114,7 @@ public class MainActivity extends Activity {
     // while interacting with the UI.
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
+    PomodoroApi.getInstance().setAutoStart(true);
 
     PomodoroApi.getInstance().setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override

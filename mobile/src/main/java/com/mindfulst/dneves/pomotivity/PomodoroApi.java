@@ -356,14 +356,19 @@ public class PomodoroApi {
       switch (action) {
         case START:
           mListener.pomodoroStarted(event);
+          break;
         case TICK:
           mListener.pomodoroTicked(event);
+          break;
         case END_POMODORO:
           mListener.pomodoroEnded(event);
+          break;
         case START_BREAK:
           mListener.breakStarted(event);
+          break;
         case FINISH:
           mListener.pomodoroFinished(event);
+          break;
       }
     }
     catch (Exception e) {
