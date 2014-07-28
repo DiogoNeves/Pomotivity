@@ -45,6 +45,13 @@
                 android:text="@string/start_button"/>
 
             <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/pause_button"
+                android:id="@+id/pause_button"
+                android:layout_weight="1"/>
+
+            <Button
                 android:id="@+id/stop_button"
                 style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp"
