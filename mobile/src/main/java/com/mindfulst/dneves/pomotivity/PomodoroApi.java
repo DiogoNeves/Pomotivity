@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -243,9 +244,11 @@ public class PomodoroApi {
   private boolean mIsPaused  = false;
   private boolean mAutoStart = false;
 
-  private Stats         mStats            = new Stats();
-  private DateTime      mLastPomodoroDate = new DateTime(0).withTime(4, 0, 0, 0);
-  private PomodoroState mCurrentState     = PomodoroState.NONE;
+  private       Stats                          mStats            = new Stats();
+  private       DateTime                       mLastPomodoroDate = new DateTime(0).withTime(4, 0, 0, 0);
+  private final AtomicReference<PomodoroState> mCurrentState     =
+      new AtomicReference<PomodoroState>(PomodoroState.NONE);
+  private final AtomicInteger                  mCurrentTime      = new AtomicInteger(POMODORO_DURATION);
 
   public static PomodoroApi getInstance() {
     if (mInstance == null) {
@@ -306,12 +309,11 @@ public class PomodoroApi {
     }
 
     final Runnable pomodoroTick = new Runnable() {
-      private int mCurrentTime = POMODORO_DURATION;
       private final long mStartTime = System.nanoTime();
 
       private void endPomodoro() {
         incrementStats();
-        notifyListener(ListenerAction.END_POMODORO, 0, mCurrentState);
+        notifyListener(ListenerAction.END_POMODORO, 0, mCurrentState.get());
 
         // Force other threads to update
         try {
@@ -323,14 +325,14 @@ public class PomodoroApi {
 
         // Start the break
         if (mStats.finishedToday % 4 == 0) {
-          mCurrentState = PomodoroState.LONG_BREAK;
-          mCurrentTime = LONG_BREAK_DURATION;
+          mCurrentState.set(PomodoroState.LONG_BREAK);
+          mCurrentTime.set(LONG_BREAK_DURATION);
         }
         else {
-          mCurrentState = PomodoroState.SHORT_BREAK;
-          mCurrentTime = SHORT_BREAK_DURATION;
+          mCurrentState.set(PomodoroState.SHORT_BREAK);
+          mCurrentTime.set(SHORT_BREAK_DURATION);
         }
-        notifyListener(ListenerAction.START_BREAK, mCurrentTime, mCurrentState);
+        notifyListener(ListenerAction.START_BREAK, mCurrentTime.get(), mCurrentState.get());
       }
 
       private void endBreak() {
@@ -357,9 +359,8 @@ public class PomodoroApi {
           return;
         }
 
-        --mCurrentTime;
-        if (mCurrentTime <= 0) {
-          if (mCurrentState == PomodoroState.POMODORO) {
+        if (mCurrentTime.decrementAndGet() <= 0) {
+          if (mCurrentState.get() == PomodoroState.POMODORO) {
             Log.d(DEBUG_TAG, "Pomodoro ended after " + ((System.nanoTime() - mStartTime) * 1e-9));
             endPomodoro();
           }
@@ -369,17 +370,18 @@ public class PomodoroApi {
           }
         }
         else {
-          Log.d(DEBUG_TAG, "Timer: " + mCurrentTime);
-          notifyListener(ListenerAction.TICK, mCurrentTime, mCurrentState);
+          Log.d(DEBUG_TAG, "Timer: " + mCurrentTime.get());
+          notifyListener(ListenerAction.TICK, mCurrentTime.get(), mCurrentState.get());
         }
       }
     };
 
     Log.i(DEBUG_TAG, "Pomodoro started");
     mIsPaused = false;
-    mCurrentState = PomodoroState.POMODORO;
+    mCurrentState.set(PomodoroState.POMODORO);
+    mCurrentTime.set(POMODORO_DURATION);
     mCurrentPomodoro.set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
-    notifyListener(ListenerAction.START, POMODORO_DURATION, mCurrentState);
+    notifyListener(ListenerAction.START, POMODORO_DURATION, mCurrentState.get());
   }
 
   private void notifyListener(ListenerAction action, int currentTime, PomodoroState state) {
@@ -441,9 +443,8 @@ public class PomodoroApi {
     if (pomodoro != null) {
       pomodoro.cancel(false);
       Log.i(DEBUG_TAG, "Timer stopped");
-      // FIXME: This should know the current time (if it isn't 0 means the user called stop())
-      notifyListener(ListenerAction.FINISH, 0, mCurrentState);
-      mCurrentState = PomodoroState.NONE;
+      notifyListener(ListenerAction.FINISH, mCurrentTime.get(), mCurrentState.get());
+      mCurrentState.set(PomodoroState.NONE);
     }
   }
 
@@ -459,8 +460,7 @@ public class PomodoroApi {
     Log.i(DEBUG_TAG, "Timer paused");
     ScheduledFuture pomodoro = mCurrentPomodoro.get();
     if (pomodoro != null) {
-      // FIXME: This needs to know the current time... should I move inside the thread?
-      notifyListener(ListenerAction.PAUSED, 0, mCurrentState);
+      notifyListener(ListenerAction.PAUSED, mCurrentTime.get(), mCurrentState.get());
     }
   }
 
@@ -478,8 +478,7 @@ public class PomodoroApi {
     mIsPaused = false;
     ScheduledFuture pomodoro = mCurrentPomodoro.get();
     if (pomodoro != null) {
-      // FIXME: This needs to know the current time... should I move inside the thread?
-      notifyListener(ListenerAction.RESUMED, 0, mCurrentState);
+      notifyListener(ListenerAction.RESUMED, mCurrentTime.get(), mCurrentState.get());
     }
   }
 
