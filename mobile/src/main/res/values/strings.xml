@@ -11,5 +11,6 @@
     <string name="start_button">START</string>
     <string name="pause_button">PAUSE</string>
     <string name="resume_button">RESUME</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
