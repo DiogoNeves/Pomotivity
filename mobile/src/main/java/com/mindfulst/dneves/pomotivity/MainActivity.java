@@ -1,6 +1,8 @@
 package com.mindfulst.dneves.pomotivity;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,11 +20,16 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    // TODO: confirm if this can't cause a bug when we leave the application while the pomodoro is running and
+    // come back after it has finished.
+    PomodoroApi api = PomodoroApi.getInstance();
+    api.load(this, getPreferences(Context.MODE_PRIVATE));
+
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
     findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
 
-    PomodoroApi.getInstance().setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
+    api.setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
       public void pomodoroStarted(final PomodoroApi.PomodoroEvent event) {
         ((TextView) findViewById(R.id.last_action)).setText("started");
@@ -94,6 +101,15 @@ public class MainActivity extends Activity {
         });
       }
     });
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = preferences.edit();
+    PomodoroApi.getInstance().save(this, editor);
+    editor.apply();
   }
 
   View.OnClickListener mStartButtonListener = new View.OnClickListener() {
