@@ -1,54 +1,102 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:background="@color/primary"
              tools:context=".MainActivity">
 
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/frameLayout"
+        android:layout_alignParentStart="false"
+        style="@style/info_area"
+        android:id="@+id/frameLayout2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/last_action"
+            android:id="@+id/last_action"
+            android:layout_marginTop="50dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/stats"
+            android:id="@+id/stats"
+            android:layout_gravity="left|center_vertical"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/expanded_counter_height"
+        android:layout_alignParentLeft="false"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="false"
+        android:layout_marginTop="0dp"
+        android:layout_alignParentRight="false"
+        android:id="@+id/frameLayout"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false">
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/current_time"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="130dp"
+            android:layout_gravity="center"/>
+
+    </FrameLayout>
+
     <LinearLayout
         android:id="@+id/fullscreen_content_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
+        android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
-        tools:ignore="UselessParent">
+        tools:ignore="UselessParent"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentEnd="false"
+        android:elevation="@dimen/button_elevation"
+        android:baselineAligned="false"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentTop="false"
+        android:layout_alignBottom="@+id/frameLayout"
+        android:layout_marginBottom="-26dp">
 
         <Button
+            style="@style/button"
             android:id="@+id/start_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_margin="1dp"
             android:text="@string/start_button"/>
 
         <Button
+            style="@style/button"
             android:id="@+id/pause_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_margin="1dp"
             android:text="@string/pause_button"/>
 
         <Button
+            style="@style/button"
             android:id="@+id/stop_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_margin="1dp"
             android:text="@string/stop_button"/>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/current_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:text="@string/current_time"
-        android:textAppearance="?android:attr/textAppearanceLarge"/>
-
-    <TextView
-        android:id="@+id/last_action"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|center_vertical"
-        android:text="@string/last_action"
-        android:textAppearance="?android:attr/textAppearanceSmall"/>
-</FrameLayout>
+</RelativeLayout>
