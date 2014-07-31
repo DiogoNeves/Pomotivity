@@ -27,7 +27,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/stats"
             android:id="@+id/stats"
-            android:layout_gravity="left|center_vertical"/>
+            android:layout_gravity="bottom|left"/>
     </FrameLayout>
 
     <FrameLayout
