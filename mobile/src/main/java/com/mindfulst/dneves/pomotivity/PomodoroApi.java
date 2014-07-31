@@ -234,7 +234,7 @@ public class PomodoroApi {
   private static final int    LONG_BREAK_DURATION  = 4;
   /**/
 
-  private static PomodoroApi mInstance = null;
+  private static PomodoroApi mInstance = new PomodoroApi();
 
   private PomodoroEventListener mListener = null;
 
@@ -251,9 +251,6 @@ public class PomodoroApi {
   private final AtomicInteger                  mCurrentTime      = new AtomicInteger(POMODORO_DURATION);
 
   public static PomodoroApi getInstance() {
-    if (mInstance == null) {
-      mInstance = new PomodoroApi();
-    }
     return mInstance;
   }
 
