@@ -36,6 +36,7 @@ Feel free to help ;)
 ### Third Party ###
 
 * Joda-Time (http://www.joda.org/joda-time/)
+* Loopable Ticking Clock (https://www.freesound.org/people/OwlStorm/sounds/212181/) (**License** http://creativecommons.org/licenses/by/3.0/legalcode)
 
 ### Who do I talk to? ###
 
