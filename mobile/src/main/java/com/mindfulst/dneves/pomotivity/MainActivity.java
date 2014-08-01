@@ -3,9 +3,10 @@ package com.mindfulst.dneves.pomotivity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,15 +16,23 @@ import android.widget.TextView;
  * Some description.
  */
 public class MainActivity extends Activity {
+  private static final String DEBUG_TAG = "pomoui";
+
+  private        SoundPool mPlayer       = null;
+  private static Integer   mTickSoundId  = null;
+  private static int       mTickStreamId = 0;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    // TODO: confirm if this can't cause a bug when we leave the application while the pomodoro is running and
-    // come back after it has finished.
     PomodoroApi api = PomodoroApi.getInstance();
     api.load(this, getPreferences(Context.MODE_PRIVATE));
+
+    // We need 2 channels, 1 for the tick the other for the end alarm
+    mPlayer = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
+    mTickSoundId = mPlayer.load(this, R.raw.tick_sound, 1);
 
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
@@ -33,6 +42,10 @@ public class MainActivity extends Activity {
       @Override
       public void pomodoroStarted(final PomodoroApi.PomodoroEvent event) {
         ((TextView) findViewById(R.id.last_action)).setText("started");
+        mTickStreamId = mPlayer.play(mTickSoundId, 1.0f, 1.0f, 1, -1, 1.0f);
+        if (mTickStreamId == 0) {
+          Log.e(DEBUG_TAG, "Oops, failed to play the tick sound");
+        }
       }
 
       @Override
@@ -77,6 +90,9 @@ public class MainActivity extends Activity {
             else {
               ((TextView) findViewById(R.id.last_action)).setText("finished");
             }
+            if (mTickStreamId != 0) {
+              mPlayer.stop(mTickStreamId);
+            }
           }
         });
       }
@@ -87,6 +103,9 @@ public class MainActivity extends Activity {
           @Override
           public void run() {
             ((TextView) findViewById(R.id.last_action)).setText("paused");
+            if (mTickStreamId != 0) {
+              mPlayer.pause(mTickStreamId);
+            }
           }
         });
       }
@@ -97,6 +116,9 @@ public class MainActivity extends Activity {
           @Override
           public void run() {
             ((TextView) findViewById(R.id.last_action)).setText("resumed");
+            if (mTickStreamId != 0) {
+              mPlayer.resume(mTickStreamId);
+            }
           }
         });
       }
