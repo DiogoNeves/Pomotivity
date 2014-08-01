@@ -33,6 +33,10 @@ Feel free to help ;)
 * Code review
 * Other guidelines
 
+### Third Party ###
+
+* Joda-Time (http://www.joda.org/joda-time/)
+
 ### Who do I talk to? ###
 
 * @DiogoNeves 
