@@ -37,6 +37,7 @@ Feel free to help ;)
 
 * Joda-Time (http://www.joda.org/joda-time/)
 * Loopable Ticking Clock (https://www.freesound.org/people/OwlStorm/sounds/212181/) (**License** http://creativecommons.org/licenses/by/3.0/legalcode)
+* (altered) Alarm Clock Sound Effect (http://www.soundjay.com/clock-sounds-1.html)
 
 ### Who do I talk to? ###
 
