@@ -18,10 +18,11 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
   private static final String DEBUG_TAG = "pomoui";
 
-  private        SoundPool mPlayer        = null;
-  private static Integer   mTickSoundId   = null;
-  private static int       mTickStreamId  = 0;
-  private static Integer   mAlarmSoundId  = null;
+  private SoundPool mPlayer = null;
+  
+  private static int mTickSoundId  = 0;
+  private static int mTickStreamId = 0;
+  private static int mAlarmSoundId = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
