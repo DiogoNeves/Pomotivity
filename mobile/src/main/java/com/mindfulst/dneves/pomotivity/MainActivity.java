@@ -18,9 +18,10 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
   private static final String DEBUG_TAG = "pomoui";
 
-  private        SoundPool mPlayer       = null;
-  private static Integer   mTickSoundId  = null;
-  private static int       mTickStreamId = 0;
+  private        SoundPool mPlayer        = null;
+  private static Integer   mTickSoundId   = null;
+  private static int       mTickStreamId  = 0;
+  private static Integer   mAlarmSoundId  = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class MainActivity extends Activity {
     // We need 2 channels, 1 for the tick the other for the end alarm
     mPlayer = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
     mTickSoundId = mPlayer.load(this, R.raw.tick_sound, 1);
+    mTickSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
 
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
@@ -64,6 +66,7 @@ public class MainActivity extends Activity {
           @Override
           public void run() {
             ((TextView) findViewById(R.id.last_action)).setText("ended");
+            mPlayer.play(mAlarmSoundId, 1.0f, 1.0f, 2, -1, 1.0f);
           }
         });
       }
@@ -89,6 +92,7 @@ public class MainActivity extends Activity {
             }
             else {
               ((TextView) findViewById(R.id.last_action)).setText("finished");
+              mPlayer.play(mAlarmSoundId, 1.0f, 1.0f, 2, -1, 1.0f);
             }
             if (mTickStreamId != 0) {
               mPlayer.stop(mTickStreamId);
