@@ -49,6 +49,10 @@ public class MainActivity extends Activity {
         if (mTickStreamId == 0) {
           Log.e(DEBUG_TAG, "Oops, failed to play the tick sound");
         }
+
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
+        audioManager.setStreamMute(AudioManager.STREAM_RING, true);
       }
 
       @Override
@@ -68,6 +72,9 @@ public class MainActivity extends Activity {
           public void run() {
             ((TextView) findViewById(R.id.last_action)).setText("ended");
             mPlayer.play(mAlarmSoundId, 1.0f, 1.0f, 2, 0, 1.0f);
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
+            audioManager.setStreamMute(AudioManager.STREAM_RING, false);
           }
         });
       }
@@ -90,6 +97,9 @@ public class MainActivity extends Activity {
           public void run() {
             if (event.currentTime > 0) {
               ((TextView) findViewById(R.id.last_action)).setText("stopped");
+              AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+              audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
+              audioManager.setStreamMute(AudioManager.STREAM_RING, false);
             }
             else {
               ((TextView) findViewById(R.id.last_action)).setText("finished");
