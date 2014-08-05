@@ -88,10 +88,6 @@ public class MainActivity extends Activity {
           public void run() {
             String breakName = event.currentState == PomodoroApi.PomodoroState.LONG_BREAK ? "long" : "short";
             ((TextView) findViewById(R.id.last_action)).setText(breakName + " break started");
-            // TODO: Animate this
-            // FIXME: It breaks the listener... hum
-            setTheme(R.style.BreakTheme);
-            setContentView(getLayoutInflater().inflate(R.layout.activity_main, null));
           }
         });
       }
