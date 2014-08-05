@@ -2,18 +2,10 @@
 <resources>
 
     <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:textColorSecondary">@android:color/black</item>
-    </style>
-
-    <style name="MainTheme" parent="AppTheme">
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
-    </style>
-
-    <style name="BreakTheme" parent="AppTheme">
-        <item name="android:colorPrimary">@color/secondary</item>
-        <item name="android:colorPrimaryDark">@color/secondary_dark</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/black</item>
     </style>
 
     <style name="button">
