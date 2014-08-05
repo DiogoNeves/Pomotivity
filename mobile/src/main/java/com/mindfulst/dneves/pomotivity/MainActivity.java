@@ -33,9 +33,11 @@ public class MainActivity extends Activity {
     api.load(this, getPreferences(Context.MODE_PRIVATE));
 
     // We need 2 channels, 1 for the tick the other for the end alarm
-    mPlayer = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
-    mTickSoundId = mPlayer.load(this, R.raw.tick_sound, 1);
-    mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
+    if (mPlayer == null) {
+      mPlayer = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
+      mTickSoundId = mPlayer.load(this, R.raw.tick_sound, 1);
+      mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
+    }
 
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
