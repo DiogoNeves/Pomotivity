@@ -14,6 +14,9 @@
         <item name="android:elevation">@dimen/button_elevation</item>
     </style>
 
+    <style name="pomodoro_panel">
+    </style>
+
     <style name="info_area">
         <item name="android:background">@android:color/white</item>
     </style>

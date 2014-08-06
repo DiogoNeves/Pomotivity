@@ -8,7 +8,6 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -42,6 +41,7 @@ public class MainActivity extends Activity {
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
     findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
+    findViewById(R.id.resume_button).setOnClickListener(mResumeButtonListener);
 
     api.setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
@@ -55,6 +55,8 @@ public class MainActivity extends Activity {
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
         audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+
+        resetButtonsVisibility(false);
       }
 
       @Override
@@ -97,6 +99,8 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
+            resetButtonsVisibility(true);
+
             if (event.currentTime > 0) {
               ((TextView) findViewById(R.id.last_action)).setText("stopped");
               AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -123,6 +127,8 @@ public class MainActivity extends Activity {
             if (mTickStreamId != 0) {
               mPlayer.pause(mTickStreamId);
             }
+
+            setButtonsVisibility(true);
           }
         });
       }
@@ -136,10 +142,39 @@ public class MainActivity extends Activity {
             if (mTickStreamId != 0) {
               mPlayer.resume(mTickStreamId);
             }
+
+            setButtonsVisibility(false);
           }
         });
       }
     });
+  }
+
+  private void resetButtonsVisibility(boolean isFinishing) {
+    if (isFinishing) {
+      findViewById(R.id.start_button).setVisibility(View.VISIBLE);
+      findViewById(R.id.pause_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.stop_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.resume_button).setVisibility(View.INVISIBLE);
+    }
+    else {
+      // Starting
+      findViewById(R.id.start_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
+    }
+  }
+
+  private void setButtonsVisibility(boolean isPaused) {
+    if (isPaused) {
+      findViewById(R.id.pause_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.resume_button).setVisibility(View.VISIBLE);
+      findViewById(R.id.stop_button).setVisibility(View.VISIBLE);
+    }
+    else {
+      findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
+      findViewById(R.id.resume_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.stop_button).setVisibility(View.INVISIBLE);
+    }
   }
 
   @Override
@@ -176,15 +211,15 @@ public class MainActivity extends Activity {
 
     @Override
     public void onClick(View view) {
-      Button buttonView = ((Button) view);
-      if (buttonView.getText() == getString(R.string.pause_button)) {
-        PomodoroApi.getInstance().pause();
-        buttonView.setText(getString(R.string.resume_button));
-      }
-      else {
-        PomodoroApi.getInstance().resume();
-        buttonView.setText(getString(R.string.pause_button));
-      }
+      PomodoroApi.getInstance().pause();
+    }
+  };
+
+  View.OnClickListener mResumeButtonListener = new View.OnClickListener() {
+
+    @Override
+    public void onClick(View view) {
+      PomodoroApi.getInstance().resume();
     }
   };
 }
