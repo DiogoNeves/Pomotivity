@@ -40,7 +40,8 @@
         android:layout_alignParentRight="false"
         android:id="@+id/frameLayout"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false">
+        android:layout_alignParentStart="false"
+        style="@style/pomodoro_panel">
 
         <TextView
             android:id="@+id/current_time"
@@ -53,7 +54,7 @@
 
     </FrameLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/fullscreen_content_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,32 +72,50 @@
         android:layout_marginBottom="-26dp">
 
         <Button
-            style="@style/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start_button"
             android:id="@+id/start_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="1dp"
-            android:text="@string/start_button"/>
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="25dp"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentBottom="false"
+            style="@style/button"
+            />
 
         <Button
-            style="@style/button"
-            android:id="@+id/pause_button"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="1dp"
-            android:text="@string/pause_button"/>
-
-        <Button
-            style="@style/button"
+            android:text="@string/stop_button"
             android:id="@+id/stop_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="1dp"
-            android:text="@string/stop_button"/>
+            android:clickable="true"
+            style="@style/button"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible"/>
 
-    </LinearLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pause_button"
+            android:id="@+id/pause_button"
+            style="@style/button"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/start_button"
+            android:enabled="true"
+            android:visibility="invisible"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/resume_button"
+            android:id="@+id/resume_button"
+            style="@style/button"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/start_button"
+            android:visibility="invisible"/>
+    </RelativeLayout>
 
 </RelativeLayout>
