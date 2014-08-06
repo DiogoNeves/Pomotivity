@@ -10,6 +10,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+
 
 /**
  * Some description.
@@ -22,6 +26,8 @@ public class MainActivity extends Activity {
   private static int mTickSoundId  = 0;
   private static int mTickStreamId = 0;
   private static int mAlarmSoundId = 0;
+
+  private PeriodFormatter mFormatter = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +48,12 @@ public class MainActivity extends Activity {
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
     findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
     findViewById(R.id.resume_button).setOnClickListener(mResumeButtonListener);
+
+    mFormatter =
+        new PeriodFormatterBuilder().printZeroAlways().minimumPrintedDigits(2).appendMinutes().appendSeparator(":")
+                                    .printZeroAlways().minimumPrintedDigits(2).appendSeconds().toFormatter();
+    Period period = new Period(PomodoroApi.POMODORO_DURATION * 1000);
+    ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
 
     api.setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
@@ -64,7 +76,8 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            ((TextView) findViewById(R.id.current_time)).setText(String.valueOf(event.currentTime));
+            Period period = new Period(event.currentTime * 1000);
+            ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
           }
         });
       }
