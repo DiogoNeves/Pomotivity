@@ -49,8 +49,9 @@
             android:layout_height="wrap_content"
             android:text="@string/current_time"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="130dp"
-            android:layout_gravity="center"/>
+            android:textSize="130sp"
+            android:layout_gravity="center"
+            android:typeface="monospace"/>
 
     </FrameLayout>
 
