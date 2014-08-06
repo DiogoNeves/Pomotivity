@@ -224,14 +224,14 @@ public class PomodoroApi {
 
   private static final String DEBUG_TAG            = "pomoapi";
   /**/
-  private static final int    POMODORO_DURATION    = 25 * 60;
-  private static final int    SHORT_BREAK_DURATION = 5 * 60;
-  private static final int    LONG_BREAK_DURATION  = 14 * 60;
+  public static final int    POMODORO_DURATION    = 25 * 60;
+  public static final int    SHORT_BREAK_DURATION = 5 * 60;
+  public static final int    LONG_BREAK_DURATION  = 14 * 60;
   /*/
   // Test times (for debugging)
-  private static final int    POMODORO_DURATION    = 6;
-  private static final int    SHORT_BREAK_DURATION = 3;
-  private static final int    LONG_BREAK_DURATION  = 4;
+  public static final int    POMODORO_DURATION    = 6;
+  public static final int    SHORT_BREAK_DURATION = 3;
+  public static final int    LONG_BREAK_DURATION  = 4;
   /**/
 
   private static PomodoroApi mInstance = new PomodoroApi();
