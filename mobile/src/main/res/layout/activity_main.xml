@@ -72,7 +72,7 @@
         android:layout_alignBottom="@+id/frameLayout"
         android:layout_marginBottom="-26dp">
 
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/start_button"
@@ -82,8 +82,9 @@
             android:layout_marginRight="25dp"
             android:layout_alignParentStart="false"
             android:layout_alignParentBottom="false"
-            style="@style/button"
-            />
+            android:src="@drawable/ic_launcher"
+            style="@style/fab"
+            android:elegantTextHeight="false"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -91,7 +92,7 @@
             android:text="@string/stop_button"
             android:id="@+id/stop_button"
             android:clickable="true"
-            style="@style/button"
+            style="@style/fab"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:visibility="invisible"/>
@@ -101,7 +102,7 @@
             android:layout_height="wrap_content"
             android:text="@string/pause_button"
             android:id="@+id/pause_button"
-            style="@style/button"
+            style="@style/fab"
             android:layout_alignParentTop="true"
             android:layout_alignStart="@+id/start_button"
             android:enabled="true"
@@ -113,7 +114,7 @@
             android:layout_height="wrap_content"
             android:text="@string/resume_button"
             android:id="@+id/resume_button"
-            style="@style/button"
+            style="@style/fab"
             android:layout_alignParentTop="true"
             android:layout_alignStart="@+id/start_button"
             android:visibility="invisible"/>

@@ -3,11 +3,13 @@ package com.mindfulst.dneves.pomotivity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Outline;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.joda.time.Period;
@@ -44,7 +46,14 @@ public class MainActivity extends Activity {
       mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
     }
 
-    findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
+    View startButton = findViewById(R.id.start_button);
+
+    int size = getResources().getDimensionPixelSize(R.dimen.fab_size);
+    Outline outline = new Outline();
+    outline.setOval(0, 0, size, size);
+    startButton.setOutline(outline);
+
+    startButton.setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
     findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
     findViewById(R.id.resume_button).setOnClickListener(mResumeButtonListener);
