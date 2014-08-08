@@ -8,10 +8,10 @@
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/frameLayout"
+        android:layout_below="@+id/pomodoro_panel"
         android:layout_alignParentStart="false"
         style="@style/info_area"
-        android:id="@+id/frameLayout2">
+        android:id="@+id/info_area">
 
         <TextView
             android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
         android:layout_alignParentTop="false"
         android:layout_marginTop="0dp"
         android:layout_alignParentRight="false"
-        android:id="@+id/frameLayout"
+        android:id="@+id/pomodoro_panel"
         android:layout_alignParentEnd="false"
         android:layout_alignParentStart="false"
         style="@style/pomodoro_panel">
@@ -56,9 +56,9 @@
     </FrameLayout>
 
     <RelativeLayout
-        android:id="@+id/fullscreen_content_controls"
+        android:id="@+id/controls"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
         tools:ignore="UselessParent"
@@ -69,22 +69,19 @@
         android:layout_alignParentBottom="false"
         android:layout_alignParentLeft="false"
         android:layout_alignParentTop="false"
-        android:layout_alignBottom="@+id/frameLayout"
-        android:layout_marginBottom="-26dp">
+        android:layout_alignBottom="@+id/pomodoro_panel"
+        android:layout_marginBottom="-26dp"
+        android:clipChildren="false">
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/start_button"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@android:drawable/ic_media_play"
             android:id="@+id/start_button"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="25dp"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentBottom="false"
-            android:src="@drawable/ic_launcher"
-            style="@style/fab"
-            android:elegantTextHeight="false"/>
+            style="@style/fab"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -104,7 +101,6 @@
             android:id="@+id/pause_button"
             style="@style/fab"
             android:layout_alignParentTop="true"
-            android:layout_alignStart="@+id/start_button"
             android:enabled="true"
             android:visibility="invisible"
             />
@@ -116,7 +112,6 @@
             android:id="@+id/resume_button"
             style="@style/fab"
             android:layout_alignParentTop="true"
-            android:layout_alignStart="@+id/start_button"
             android:visibility="invisible"/>
     </RelativeLayout>
 

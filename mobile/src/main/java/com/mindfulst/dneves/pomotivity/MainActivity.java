@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
     Outline outline = new Outline();
     outline.setOval(0, 0, size, size);
     startButton.setOutline(outline);
+    findViewById(R.id.controls).setClipBounds(null);
 
     startButton.setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
