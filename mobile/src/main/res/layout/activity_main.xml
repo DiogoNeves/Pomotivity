@@ -51,8 +51,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="130sp"
             android:layout_gravity="center"
-            android:typeface="monospace"
-            android:layout_marginBottom="@dimen/controls_margin_bottom"/>
+            android:typeface="monospace"/>
 
     </FrameLayout>
 
