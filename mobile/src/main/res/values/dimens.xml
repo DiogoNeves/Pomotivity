@@ -2,5 +2,6 @@
 <resources>
     <dimen name="expanded_counter_height">450dp</dimen>
     <dimen name="pomodoro_panel_elevation">4dp</dimen>
-    <dimen name="button_elevation">6dp</dimen>
+    <dimen name="controls_margin_bottom">15dp</dimen>
+    <dimen name="controls_padding">15dp</dimen>
 </resources>

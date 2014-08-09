@@ -11,7 +11,6 @@
     <style name="button">
         <item name="android:textColor">@android:color/black</item>
         <item name="android:background">@color/accent</item>
-        <item name="android:elevation">@dimen/button_elevation</item>
     </style>
 
     <style name="pomodoro_panel">

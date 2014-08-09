@@ -8,10 +8,10 @@
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/frameLayout"
+        android:layout_below="@+id/pomodoro_panel"
         android:layout_alignParentStart="false"
         style="@style/info_area"
-        android:id="@+id/frameLayout2">
+        android:id="@+id/stats_panel">
 
         <TextView
             android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
         android:layout_alignParentTop="false"
         android:layout_marginTop="0dp"
         android:layout_alignParentRight="false"
-        android:id="@+id/frameLayout"
+        android:id="@+id/pomodoro_panel"
         android:layout_alignParentEnd="false"
         android:layout_alignParentStart="false"
         style="@style/pomodoro_panel">
@@ -55,34 +55,34 @@
 
     </FrameLayout>
 
-    <RelativeLayout
-        android:id="@+id/fullscreen_content_controls"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal"
-        tools:ignore="UselessParent"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentEnd="false"
-        android:elevation="@dimen/button_elevation"
-        android:baselineAligned="false"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentTop="false"
-        android:layout_alignBottom="@+id/frameLayout"
-        android:layout_marginBottom="-26dp">
+        android:layout_gravity="left|center_vertical"
+        android:layout_alignBottom="@+id/pomodoro_panel"
+        android:layout_marginBottom="@dimen/controls_margin_bottom"
+        android:paddingStart="@dimen/controls_padding"
+        android:paddingEnd="@dimen/controls_padding"
+        android:id="@+id/controls"
+        android:baselineAligned="false">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/start_button"
             android:id="@+id/start_button"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="25dp"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentBottom="false"
             style="@style/button"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pause_button"
+            android:id="@+id/pause_button"
+            style="@style/button"
+            android:enabled="true"
+            android:visibility="visible"
             />
 
         <Button
@@ -92,20 +92,7 @@
             android:id="@+id/stop_button"
             android:clickable="true"
             style="@style/button"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:visibility="invisible"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pause_button"
-            android:id="@+id/pause_button"
-            style="@style/button"
-            android:layout_alignParentTop="true"
-            android:layout_alignStart="@+id/start_button"
-            android:enabled="true"
-            android:visibility="invisible"
+            android:visibility="visible"
             />
 
         <Button
@@ -114,9 +101,8 @@
             android:text="@string/resume_button"
             android:id="@+id/resume_button"
             style="@style/button"
-            android:layout_alignParentTop="true"
-            android:layout_alignStart="@+id/start_button"
-            android:visibility="invisible"/>
-    </RelativeLayout>
+            android:visibility="visible"
+            />
+    </LinearLayout>
 
 </RelativeLayout>
