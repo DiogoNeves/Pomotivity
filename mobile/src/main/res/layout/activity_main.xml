@@ -51,7 +51,8 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="130sp"
             android:layout_gravity="center"
-            android:typeface="monospace"/>
+            android:typeface="monospace"
+            android:layout_marginBottom="@dimen/controls_margin_bottom"/>
 
     </FrameLayout>
 
@@ -65,44 +66,49 @@
         android:paddingStart="@dimen/controls_padding"
         android:paddingEnd="@dimen/controls_padding"
         android:id="@+id/controls"
-        android:baselineAligned="false">
+        android:baselineAligned="false"
+        >
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/start_button"
             android:id="@+id/start_button"
             style="@style/button"
-            />
+            android:layout_weight="1"
+            android:visibility="visible"/>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/pause_button"
             android:id="@+id/pause_button"
             style="@style/button"
             android:enabled="true"
-            android:visibility="visible"
-            />
+            android:layout_weight="1"
+            android:visibility="gone"/>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/stop_button"
             android:id="@+id/stop_button"
-            android:clickable="true"
+            android:clickable="false"
             style="@style/button"
-            android:visibility="visible"
-            />
+            android:visibility="gone"
+            android:layout_marginRight="@dimen/button_small_margin"
+            android:layout_weight="1"
+            android:background="@color/accent_secondary"/>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/resume_button"
             android:id="@+id/resume_button"
             style="@style/button"
-            android:visibility="visible"
-            />
+            android:visibility="gone"
+            android:layout_marginLeft="@dimen/button_small_margin"
+            android:layout_weight="1"/>
     </LinearLayout>
 
 </RelativeLayout>
