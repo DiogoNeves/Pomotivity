@@ -166,27 +166,27 @@ public class MainActivity extends Activity {
   private void resetButtonsVisibility(boolean isFinishing) {
     if (isFinishing) {
       findViewById(R.id.start_button).setVisibility(View.VISIBLE);
-      findViewById(R.id.pause_button).setVisibility(View.INVISIBLE);
-      findViewById(R.id.stop_button).setVisibility(View.INVISIBLE);
-      findViewById(R.id.resume_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.pause_button).setVisibility(View.GONE);
+      findViewById(R.id.stop_button).setVisibility(View.GONE);
+      findViewById(R.id.resume_button).setVisibility(View.GONE);
     }
     else {
       // Starting
-      findViewById(R.id.start_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.start_button).setVisibility(View.GONE);
       findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
     }
   }
 
   private void setButtonsVisibility(boolean isPaused) {
     if (isPaused) {
-      findViewById(R.id.pause_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.pause_button).setVisibility(View.GONE);
       findViewById(R.id.resume_button).setVisibility(View.VISIBLE);
       findViewById(R.id.stop_button).setVisibility(View.VISIBLE);
     }
     else {
       findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
-      findViewById(R.id.resume_button).setVisibility(View.INVISIBLE);
-      findViewById(R.id.stop_button).setVisibility(View.INVISIBLE);
+      findViewById(R.id.resume_button).setVisibility(View.GONE);
+      findViewById(R.id.stop_button).setVisibility(View.GONE);
     }
   }
 
