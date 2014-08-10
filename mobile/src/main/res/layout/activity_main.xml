@@ -97,7 +97,7 @@
                 android:id="@+id/stats_panel"
                 style="@style/info_area"
                 android:layout_width="fill_parent"
-                android:layout_height="608dp"
+                android:layout_height="@dimen/stats_panel_height"
                 >
 
                 <TextView
