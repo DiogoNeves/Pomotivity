@@ -6,18 +6,12 @@
     android:background="?android:colorPrimary"
     tools:context=".MainActivity">
 
-    <ScrollView
-        android:id="@+id/fullscreen_scoller"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:nestedScrollingEnabled="true"
-        android:scrollbars="none">
-
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:id="@+id/main_container">
+            android:id="@+id/main_container"
+            android:clickable="true">
 
             <FrameLayout
                 android:id="@+id/pomodoro_panel"
@@ -98,7 +92,7 @@
                 style="@style/info_area"
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/stats_panel_height"
-                >
+                android:clickable="true">
 
                 <TextView
                     android:id="@+id/last_action"
@@ -117,5 +111,4 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"/>
             </FrameLayout>
         </LinearLayout>
-    </ScrollView>
 </FrameLayout>
