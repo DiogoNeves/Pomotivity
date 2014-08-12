@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Scroller;
 import android.widget.TextView;
 
 import org.joda.time.Period;
@@ -23,6 +24,8 @@ import org.joda.time.format.PeriodFormatterBuilder;
 public class MainActivity extends Activity {
 
   class ScrollDetector extends GestureDetector.SimpleOnGestureListener {
+    private final float SCALE = 4.0f;
+
     @Override
     public boolean onDown(MotionEvent e) {
       return true;
@@ -30,20 +33,20 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-      Log.d(DEBUG_TAG, "scrolled");
       return super.onScroll(e1, e2, distanceX, distanceY);
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-      Log.d(DEBUG_TAG, "flinged");
-      return super.onFling(e1, e2, velocityX, velocityY);
+      mScroller.fling(mScroller.getCurrX(), mScroller.getCurrY(), 0, (int)(velocityY / SCALE), 0, 0, 600, 600);
+      return true;
     }
   }
 
   private static final String DEBUG_TAG = "pomoui";
 
   private GestureDetector mDetector;
+  private Scroller        mScroller;
 
   private SoundPool mPlayer = null;
 
@@ -79,8 +82,9 @@ public class MainActivity extends Activity {
     Period period = new Period(PomodoroApi.POMODORO_DURATION * 1000);
     ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
 
+    mScroller = new Scroller(findViewById(R.id.main_container).getContext());
     mDetector = new GestureDetector(this, new ScrollDetector());
-    findViewById(R.id.main_container).setOnTouchListener(new View.OnTouchListener() {
+    findViewById(R.id.stats_panel).setOnTouchListener(new View.OnTouchListener() {
       @Override
       public boolean onTouch(View view, MotionEvent event) {
         boolean result = mDetector.onTouchEvent(event);
