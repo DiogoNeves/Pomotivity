@@ -6,109 +6,78 @@
     android:background="?android:colorPrimary"
     tools:context=".MainActivity">
 
-        <LinearLayout
-            android:layout_width="fill_parent"
+    <FrameLayout
+        android:id="@+id/pomodoro_panel"
+        style="@style/pomodoro_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp">
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/main_container"
-            android:clickable="true">
+            android:layout_gravity="center"
+            android:text="@string/current_time"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="130sp"
+            android:typeface="monospace"
+            android:layout_marginBottom="@dimen/controls_margin_bottom"/>
 
-            <FrameLayout
-                android:id="@+id/pomodoro_panel"
-                style="@style/pomodoro_panel"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/expanded_counter_height"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="0dp">
+        <LinearLayout
+            android:id="@+id/controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="@dimen/controls_margin_bottom"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingEnd="@dimen/controls_padding"
+            android:paddingStart="@dimen/controls_padding"
+            >
 
-                <TextView
-                    android:id="@+id/current_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/current_time"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textSize="130sp"
-                    android:typeface="monospace"/>
-
-                <LinearLayout
-                    android:id="@+id/controls"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="@dimen/controls_margin_bottom"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal"
-                    android:paddingEnd="@dimen/controls_padding"
-                    android:paddingStart="@dimen/controls_padding"
-                    >
-
-                    <Button
-                        android:id="@+id/start_button"
-                        style="@style/button"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/start_button"
-                        android:visibility="visible"/>
-
-                    <Button
-                        android:id="@+id/pause_button"
-                        style="@style/button"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:enabled="true"
-                        android:text="@string/pause_button"
-                        android:visibility="gone"/>
-
-                    <Button
-                        android:id="@+id/stop_button"
-                        style="@style/button"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="@dimen/button_small_margin"
-                        android:layout_weight="1"
-                        android:background="@color/accent_secondary"
-                        android:clickable="false"
-                        android:text="@string/stop_button"
-                        android:visibility="gone"/>
-
-                    <Button
-                        android:id="@+id/resume_button"
-                        style="@style/button"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/button_small_margin"
-                        android:layout_weight="1"
-                        android:text="@string/resume_button"
-                        android:visibility="gone"/>
-                </LinearLayout>
-
-            </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/stats_panel"
-                style="@style/info_area"
+            <Button
+                android:id="@+id/start_button"
+                style="@style/button"
                 android:layout_width="fill_parent"
-                android:layout_height="@dimen/stats_panel_height"
-                android:clickable="true">
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/start_button"
+                android:visibility="visible"/>
 
-                <TextView
-                    android:id="@+id/last_action"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="50dp"
-                    android:text="@string/last_action"
-                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            <Button
+                android:id="@+id/pause_button"
+                style="@style/button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="true"
+                android:text="@string/pause_button"
+                android:visibility="gone"/>
 
-                <TextView
-                    android:id="@+id/stats"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|left"
-                    android:text="@string/stats"
-                    android:textAppearance="?android:attr/textAppearanceMedium"/>
-            </FrameLayout>
+            <Button
+                android:id="@+id/stop_button"
+                style="@style/button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/button_small_margin"
+                android:layout_weight="1"
+                android:background="@color/accent_secondary"
+                android:clickable="false"
+                android:text="@string/stop_button"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/resume_button"
+                style="@style/button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/button_small_margin"
+                android:layout_weight="1"
+                android:text="@string/resume_button"
+                android:visibility="gone"/>
         </LinearLayout>
+
+    </FrameLayout>
 </FrameLayout>

@@ -22,31 +22,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
  * Some description.
  */
 public class MainActivity extends Activity {
-
-  class ScrollDetector extends GestureDetector.SimpleOnGestureListener {
-    private final float SCALE = 4.0f;
-
-    @Override
-    public boolean onDown(MotionEvent e) {
-      return true;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-      return super.onScroll(e1, e2, distanceX, distanceY);
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-      mScroller.fling(mScroller.getCurrX(), mScroller.getCurrY(), 0, (int)(velocityY / SCALE), 0, 0, 600, 600);
-      return true;
-    }
-  }
-
   private static final String DEBUG_TAG = "pomoui";
-
-  private GestureDetector mDetector;
-  private Scroller        mScroller;
 
   private SoundPool mPlayer = null;
 
@@ -82,25 +58,9 @@ public class MainActivity extends Activity {
     Period period = new Period(PomodoroApi.POMODORO_DURATION * 1000);
     ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
 
-    mScroller = new Scroller(findViewById(R.id.main_container).getContext());
-    mDetector = new GestureDetector(this, new ScrollDetector());
-    findViewById(R.id.stats_panel).setOnTouchListener(new View.OnTouchListener() {
-      @Override
-      public boolean onTouch(View view, MotionEvent event) {
-        boolean result = mDetector.onTouchEvent(event);
-        if (!result) {
-          if (event.getAction() == MotionEvent.ACTION_UP) {
-            result = true;
-          }
-        }
-        return result;
-      }
-    });
-
     api.setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
       public void pomodoroStarted(final PomodoroApi.PomodoroEvent event) {
-        ((TextView) findViewById(R.id.last_action)).setText("started");
         mTickStreamId = mPlayer.play(mTickSoundId, 1.0f, 1.0f, 1, -1, 1.0f);
         if (mTickStreamId == 0) {
           Log.e(DEBUG_TAG, "Oops, failed to play the tick sound");
@@ -129,7 +89,6 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            ((TextView) findViewById(R.id.last_action)).setText("ended");
             mPlayer.play(mAlarmSoundId, 1.0f, 1.0f, 2, 0, 1.0f);
             AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
@@ -144,7 +103,6 @@ public class MainActivity extends Activity {
           @Override
           public void run() {
             String breakName = event.currentState == PomodoroApi.PomodoroState.LONG_BREAK ? "long" : "short";
-            ((TextView) findViewById(R.id.last_action)).setText(breakName + " break started");
           }
         });
       }
@@ -157,13 +115,11 @@ public class MainActivity extends Activity {
             resetButtonsVisibility(true);
 
             if (event.currentTime > 0) {
-              ((TextView) findViewById(R.id.last_action)).setText("stopped");
               AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
               audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
               audioManager.setStreamMute(AudioManager.STREAM_RING, false);
             }
             else {
-              ((TextView) findViewById(R.id.last_action)).setText("finished");
               mPlayer.play(mAlarmSoundId, 1.0f, 1.0f, 2, 0, 1.0f);
             }
             if (mTickStreamId != 0) {
@@ -178,7 +134,6 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            ((TextView) findViewById(R.id.last_action)).setText("paused");
             if (mTickStreamId != 0) {
               mPlayer.pause(mTickStreamId);
             }
@@ -193,7 +148,6 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            ((TextView) findViewById(R.id.last_action)).setText("resumed");
             if (mTickStreamId != 0) {
               mPlayer.resume(mTickStreamId);
             }
