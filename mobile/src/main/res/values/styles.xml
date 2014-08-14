@@ -12,9 +12,10 @@
     </style>
 
     <style name="pomodoro_panel">
+        <item name="android:background">@color/primary</item>
     </style>
 
-    <style name="info_area">
-        <item name="android:background">@android:color/white</item>
+    <style name="break_panel">
+        <item name="android:background">@color/secondary</item>
     </style>
 </resources>
