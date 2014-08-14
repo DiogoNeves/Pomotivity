@@ -5,79 +5,94 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/pomodoro_panel"
-        style="@style/pomodoro_panel"
+    <ViewSwitcher
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/primary"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="0dp">
+        android:id="@+id/view_switcher"
+        >
 
-        <TextView
-            android:id="@+id/current_time"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/pomodoro_panel"
+            style="@style/pomodoro_panel"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp">
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/break_panel"
+            style="@style/break_panel"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp">
+
+        </FrameLayout>
+    </ViewSwitcher>
+
+    <TextView
+        android:id="@+id/current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/current_time"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/timer_font_size"
+        android:typeface="monospace"
+        android:layout_marginBottom="@dimen/controls_margin_bottom"/>
+
+    <LinearLayout
+        android:id="@+id/controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/controls_margin_bottom"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingEnd="@dimen/controls_padding"
+        android:paddingStart="@dimen/controls_padding"
+        >
+
+        <Button
+            android:id="@+id/start_button"
+            style="@style/button"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/current_time"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="@dimen/timer_font_size"
-            android:typeface="monospace"
-            android:layout_marginBottom="@dimen/controls_margin_bottom"/>
+            android:layout_weight="1"
+            android:text="@string/start_button"
+            android:visibility="visible"/>
 
-        <LinearLayout
-            android:id="@+id/controls"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/pause_button"
+            style="@style/button"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="@dimen/controls_margin_bottom"
-            android:baselineAligned="false"
-            android:orientation="horizontal"
-            android:paddingEnd="@dimen/controls_padding"
-            android:paddingStart="@dimen/controls_padding"
-            >
+            android:layout_weight="1"
+            android:enabled="true"
+            android:text="@string/pause_button"
+            android:visibility="gone"/>
 
-            <Button
-                android:id="@+id/start_button"
-                style="@style/button"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/start_button"
-                android:visibility="visible"/>
+        <Button
+            android:id="@+id/stop_button"
+            style="@style/button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/button_small_margin"
+            android:layout_weight="1"
+            android:background="@color/accent_secondary"
+            android:clickable="false"
+            android:text="@string/stop_button"
+            android:visibility="gone"/>
 
-            <Button
-                android:id="@+id/pause_button"
-                style="@style/button"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:enabled="true"
-                android:text="@string/pause_button"
-                android:visibility="gone"/>
-
-            <Button
-                android:id="@+id/stop_button"
-                style="@style/button"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/button_small_margin"
-                android:layout_weight="1"
-                android:background="@color/accent_secondary"
-                android:clickable="false"
-                android:text="@string/stop_button"
-                android:visibility="gone"/>
-
-            <Button
-                android:id="@+id/resume_button"
-                style="@style/button"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/button_small_margin"
-                android:layout_weight="1"
-                android:text="@string/resume_button"
-                android:visibility="gone"/>
-        </LinearLayout>
-
-    </FrameLayout>
+        <Button
+            android:id="@+id/resume_button"
+            style="@style/button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/button_small_margin"
+            android:layout_weight="1"
+            android:text="@string/resume_button"
+            android:visibility="gone"/>
+    </LinearLayout>
 </FrameLayout>
