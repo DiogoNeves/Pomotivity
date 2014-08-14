@@ -7,11 +7,9 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Scroller;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
@@ -23,6 +21,8 @@ import org.joda.time.format.PeriodFormatterBuilder;
  */
 public class MainActivity extends Activity {
   private static final String DEBUG_TAG = "pomoui";
+
+  private ViewSwitcher mSwitcher = null;
 
   private SoundPool mPlayer = null;
 
@@ -36,6 +36,8 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
     PomodoroApi api = PomodoroApi.getInstance();
     api.load(this, getPreferences(Context.MODE_PRIVATE));
@@ -102,7 +104,9 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            String breakName = event.currentState == PomodoroApi.PomodoroState.LONG_BREAK ? "long" : "short";
+            mSwitcher.showNext();
+            Period period = new Period(event.currentTime * 1000);
+            ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
           }
         });
       }
@@ -125,6 +129,10 @@ public class MainActivity extends Activity {
             if (mTickStreamId != 0) {
               mPlayer.stop(mTickStreamId);
             }
+
+            mSwitcher.showPrevious();
+            Period period = new Period(PomodoroApi.POMODORO_DURATION * 1000);
+            ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
           }
         });
       }
