@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorPrimary"
     tools:context=".MainActivity">
 
     <FrameLayout
@@ -11,6 +10,7 @@
         style="@style/pomodoro_panel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:background="@color/primary"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="0dp">
 
@@ -21,7 +21,7 @@
             android:layout_gravity="center"
             android:text="@string/current_time"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="130sp"
+            android:textSize="@dimen/timer_font_size"
             android:typeface="monospace"
             android:layout_marginBottom="@dimen/controls_margin_bottom"/>
 
