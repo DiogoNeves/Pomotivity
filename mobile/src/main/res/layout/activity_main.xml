@@ -51,8 +51,8 @@
         android:layout_marginBottom="@dimen/controls_margin_bottom"
         android:baselineAligned="false"
         android:orientation="horizontal"
-        android:paddingEnd="@dimen/controls_padding"
-        android:paddingStart="@dimen/controls_padding"
+        android:paddingLeft="@dimen/controls_padding"
+        android:paddingRight="@dimen/controls_padding"
         >
 
         <Button
