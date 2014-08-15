@@ -130,7 +130,9 @@ public class MainActivity extends Activity {
               mPlayer.stop(mTickStreamId);
             }
 
-            mSwitcher.showPrevious();
+            if (event.currentState != PomodoroApi.PomodoroState.POMODORO) {
+              mSwitcher.showPrevious();
+            }
             Period period = new Period(PomodoroApi.POMODORO_DURATION * 1000);
             ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
           }
