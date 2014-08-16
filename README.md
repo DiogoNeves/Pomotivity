@@ -4,9 +4,10 @@ Pomotivity is a simple and fun productivity application that follows the **Pomod
 
 -----
 
-I started the project to learn more about *Google's Material Design*, but since I'm onto it, why not creating something I could use?  
+I started the project to learn more about *Android Development*, but since then I'm onto it, why not creating something I could use?  
 
-I wasn't happy having to remember and manually switch off notifications during my pomodoros. With **Pomotivity** that shouldn't be a problem.  
+I wasn't happy having to remember and manually switch off notifications during my pomodoros.  
+With **Pomotivity** that shouldn't be a problem.  
 Also, for the geeks out there, it integrates with *IFTTT* in case you need something more flexible.
 
 Feel free to help ;)
@@ -32,6 +33,12 @@ Feel free to help ;)
 * Writing tests
 * Code review
 * Other guidelines
+
+### Third Party ###
+
+* Joda-Time (http://www.joda.org/joda-time/)
+* Loopable Ticking Clock (https://www.freesound.org/people/OwlStorm/sounds/212181/) (**License** http://creativecommons.org/licenses/by/3.0/legalcode)
+* (altered) Alarm Clock Sound Effect (http://www.soundjay.com/clock-sounds-1.html)
 
 ### Who do I talk to? ###
 
@@ -62,4 +69,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 -----
-Copyright: Pomodoro Technique® and Pomodoro® are registered trademarks of Francesco Cirillo.
+Copyright: Pomodoro Technique® and Pomodoro® are registered trademarks of Francesco Cirillo.  
+           Android is a trademark of Google Inc.

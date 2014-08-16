@@ -1,147 +1,211 @@
 package com.mindfulst.dneves.pomotivity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.os.Build;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
-import com.mindfulst.dneves.pomotivity.util.SystemUiHider;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
+ * Some description.
  */
 public class MainActivity extends Activity {
-  /**
-   * Whether or not the system UI should be auto-hidden after
-   * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-   */
-  private static final boolean AUTO_HIDE = true;
+  private static final String DEBUG_TAG = "pomoui";
 
-  /**
-   * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-   * user interaction before hiding the system UI.
-   */
-  private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+  private ViewSwitcher mSwitcher = null;
 
-  /**
-   * If set, will toggle the system UI visibility upon interaction. Otherwise,
-   * will show the system UI visibility upon interaction.
-   */
-  private static final boolean TOGGLE_ON_CLICK = true;
+  private SoundPool mPlayer = null;
 
-  /**
-   * The flags to pass to {@link SystemUiHider#getInstance}.
-   */
-  private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+  private static int mTickSoundId  = 0;
+  private static int mTickStreamId = 0;
+  private static int mAlarmSoundId = 0;
 
-  /**
-   * The instance of the {@link SystemUiHider} for this activity.
-   */
-  private SystemUiHider mSystemUiHider;
+  private PeriodFormatter mFormatter = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.activity_main);
 
-    final View controlsView = findViewById(R.id.fullscreen_content_controls);
-    final View contentView = findViewById(R.id.fullscreen_content);
+    mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
-    // Set up an instance of SystemUiHider to control the system UI for
-    // this activity.
-    mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-    mSystemUiHider.setup();
-    mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-      // Cached values.
-      int mControlsHeight;
-      int mShortAnimTime;
+    PomodoroApi api = PomodoroApi.getInstance();
+    api.load(this, getPreferences(Context.MODE_PRIVATE));
+
+    // We need 2 channels, 1 for the tick the other for the end alarm
+    if (mPlayer == null) {
+      mPlayer = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
+      mTickSoundId = mPlayer.load(this, R.raw.tick_sound, 1);
+      mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
+    }
+
+    findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
+    findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
+    findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
+    findViewById(R.id.resume_button).setOnClickListener(mResumeButtonListener);
+
+    mFormatter =
+        new PeriodFormatterBuilder().printZeroAlways().minimumPrintedDigits(2).appendMinutes().appendSeparator(":")
+                                    .printZeroAlways().minimumPrintedDigits(2).appendSeconds().toFormatter();
+    Period period = new Period(PomodoroApi.POMODORO_DURATION * 1000);
+    ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
+
+    api.setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
+      @Override
+      public void pomodoroStarted(final PomodoroApi.PomodoroEvent event) {
+        mTickStreamId = mPlayer.play(mTickSoundId, 1.0f, 1.0f, 1, -1, 1.0f);
+        if (mTickStreamId == 0) {
+          Log.e(DEBUG_TAG, "Oops, failed to play the tick sound");
+        }
+
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
+        audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+
+        resetButtonsVisibility(false);
+      }
 
       @Override
-      @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-      public void onVisibilityChange(boolean visible) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-          // If the ViewPropertyAnimator API is available
-          // (Honeycomb MR2 and later), use it to animate the
-          // in-layout UI controls at the bottom of the
-          // screen.
-          if (mControlsHeight == 0) {
-            mControlsHeight = controlsView.getHeight();
+      public void pomodoroTicked(final PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            Period period = new Period(event.currentTime * 1000);
+            ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
           }
-          if (mShortAnimTime == 0) {
-            mShortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-          }
-          controlsView.animate().translationY(visible ? 0 : mControlsHeight)
-                      .setDuration(mShortAnimTime);
-        }
-        else {
-          // If the ViewPropertyAnimator APIs aren't
-          // available, simply show or hide the in-layout UI
-          // controls.
-          controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
-
-        if (visible && AUTO_HIDE) {
-          // Schedule a hide().
-          delayedHide(AUTO_HIDE_DELAY_MILLIS);
-        }
+        });
       }
-    });
 
-    // Set up the user interaction to manually show or hide the system UI.
-    contentView.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onClick(View view) {
-        if (TOGGLE_ON_CLICK) {
-          mSystemUiHider.toggle();
-        }
-        else {
-          mSystemUiHider.show();
-        }
+      public void pomodoroEnded(final PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            mPlayer.play(mAlarmSoundId, 1.0f, 1.0f, 2, 0, 1.0f);
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
+            audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+          }
+        });
+      }
+
+      @Override
+      public void breakStarted(final PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            mSwitcher.showNext();
+            Period period = new Period(event.currentTime * 1000);
+            ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
+          }
+        });
+      }
+
+      @Override
+      public void pomodoroFinished(final PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            resetButtonsVisibility(true);
+
+            if (event.currentTime > 0) {
+              AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+              audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
+              audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+            }
+            else {
+              mPlayer.play(mAlarmSoundId, 1.0f, 1.0f, 2, 0, 1.0f);
+            }
+            if (mTickStreamId != 0) {
+              mPlayer.stop(mTickStreamId);
+            }
+
+            if (event.currentState != PomodoroApi.PomodoroState.POMODORO) {
+              mSwitcher.showPrevious();
+            }
+            Period period = new Period(PomodoroApi.POMODORO_DURATION * 1000);
+            ((TextView) findViewById(R.id.current_time)).setText(mFormatter.print(period));
+          }
+        });
+      }
+
+      @Override
+      public void paused(PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            if (mTickStreamId != 0) {
+              mPlayer.pause(mTickStreamId);
+            }
+
+            setButtonsVisibility(true);
+          }
+        });
+      }
+
+      @Override
+      public void resumed(PomodoroApi.PomodoroEvent event) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            if (mTickStreamId != 0) {
+              mPlayer.resume(mTickStreamId);
+            }
+
+            setButtonsVisibility(false);
+          }
+        });
       }
     });
+  }
 
-    // Upon interacting with UI controls, delay any scheduled hide()
-    // operations to prevent the jarring behavior of controls going away
-    // while interacting with the UI.
-    findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-    findViewById(R.id.test_button).setOnClickListener(mTestButtonListener);
+  private void resetButtonsVisibility(boolean isFinishing) {
+    if (isFinishing) {
+      findViewById(R.id.start_button).setVisibility(View.VISIBLE);
+      findViewById(R.id.pause_button).setVisibility(View.GONE);
+      findViewById(R.id.stop_button).setVisibility(View.GONE);
+      findViewById(R.id.resume_button).setVisibility(View.GONE);
+    }
+    else {
+      // Starting
+      findViewById(R.id.start_button).setVisibility(View.GONE);
+      findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
+    }
+  }
+
+  private void setButtonsVisibility(boolean isPaused) {
+    if (isPaused) {
+      findViewById(R.id.pause_button).setVisibility(View.GONE);
+      findViewById(R.id.resume_button).setVisibility(View.VISIBLE);
+      findViewById(R.id.stop_button).setVisibility(View.VISIBLE);
+    }
+    else {
+      findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
+      findViewById(R.id.resume_button).setVisibility(View.GONE);
+      findViewById(R.id.stop_button).setVisibility(View.GONE);
+    }
   }
 
   @Override
-  protected void onPostCreate(Bundle savedInstanceState) {
-    super.onPostCreate(savedInstanceState);
-
-    // Trigger the initial hide() shortly after the activity has been
-    // created, to briefly hint to the user that UI controls
-    // are available.
-    delayedHide(100);
+  protected void onPause() {
+    super.onPause();
+    SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = preferences.edit();
+    PomodoroApi.getInstance().save(this, editor);
+    editor.apply();
   }
 
-
-  /**
-   * Touch listener to use for in-layout UI controls to delay hiding the
-   * system UI. This is to prevent the jarring behavior of controls going away
-   * while interacting with activity UI.
-   */
-  View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-      if (AUTO_HIDE) {
-        delayedHide(AUTO_HIDE_DELAY_MILLIS);
-      }
-      return false;
-    }
-  };
-
-  View.OnClickListener mTestButtonListener = new View.OnClickListener() {
+  View.OnClickListener mStartButtonListener = new View.OnClickListener() {
 
     @Override
     public void onClick(View view) {
@@ -154,20 +218,27 @@ public class MainActivity extends Activity {
     }
   };
 
-  Handler  mHideHandler  = new Handler();
-  Runnable mHideRunnable = new Runnable() {
+  View.OnClickListener mStopButtonListener = new View.OnClickListener() {
+
     @Override
-    public void run() {
-      mSystemUiHider.hide();
+    public void onClick(View view) {
+      PomodoroApi.getInstance().stop();
     }
   };
 
-  /**
-   * Schedules a call to hide() in [delay] milliseconds, canceling any
-   * previously scheduled calls.
-   */
-  private void delayedHide(int delayMillis) {
-    mHideHandler.removeCallbacks(mHideRunnable);
-    mHideHandler.postDelayed(mHideRunnable, delayMillis);
-  }
+  View.OnClickListener mPauseButtonListener = new View.OnClickListener() {
+
+    @Override
+    public void onClick(View view) {
+      PomodoroApi.getInstance().pause();
+    }
+  };
+
+  View.OnClickListener mResumeButtonListener = new View.OnClickListener() {
+
+    @Override
+    public void onClick(View view) {
+      PomodoroApi.getInstance().resume();
+    }
+  };
 }
