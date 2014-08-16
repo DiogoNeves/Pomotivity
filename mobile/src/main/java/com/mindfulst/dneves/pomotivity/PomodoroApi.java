@@ -238,11 +238,12 @@ public class PomodoroApi {
 
   private PomodoroEventListener mListener = null;
 
-  private final ScheduledExecutorService         mExecutionService = Executors.newSingleThreadScheduledExecutor();
-  private       AtomicReference<ScheduledFuture> mCurrentPomodoro  = new AtomicReference<ScheduledFuture>();
+  private final ScheduledExecutorService mExecutionService =
+      Executors.newSingleThreadScheduledExecutor();
 
-  private boolean mIsPaused  = false;
-  private boolean mAutoStart = false;
+  private AtomicReference<ScheduledFuture> mCurrentPomodoro =
+      new AtomicReference<ScheduledFuture>();
+  private boolean                          mIsPaused        = false;
 
   private       Stats                          mStats            = new Stats();
   private       DateTime                       mLastPomodoroDate = new DateTime(0).withTime(4, 0, 0, 0);
@@ -295,7 +296,10 @@ public class PomodoroApi {
   /**
    * Starts the pomodoro timer.
    *
-   * @throws com.mindfulst.dneves.pomotivity.PomodoroApi.AlreadyRunningException if a pomodoro is already running.
+   * @throws com.mindfulst.dneves.pomotivity.PomodoroApi.AlreadyRunningException if you call this
+   *                                                                             method while a
+   *                                                                             pomodoro is
+   *                                                                             running.
    */
   public synchronized void start() throws AlreadyRunningException {
     // We don't care if it stops after this point, only that you called it while it was logically
