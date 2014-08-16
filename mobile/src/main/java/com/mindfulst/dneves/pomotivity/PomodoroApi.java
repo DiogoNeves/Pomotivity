@@ -32,6 +32,7 @@ public class PomodoroApi {
 
   public final class PomodoroEvent extends EventObject {
     public final int           currentTime;
+    public final boolean       autoStart;
     public final PomodoroState currentState;
 
     /**
@@ -41,15 +42,17 @@ public class PomodoroApi {
      * @param currentTime  Milliseconds since the current state started (break or pomodoro).
      * @param currentState Current state of execution.
      */
-    protected PomodoroEvent(Object source, int currentTime, PomodoroState currentState) {
+    protected PomodoroEvent(Object source, int currentTime, boolean autoStart, PomodoroState currentState) {
       super(source);
       this.currentTime = currentTime;
+      this.autoStart = autoStart;
       this.currentState = currentState;
     }
   }
 
   /**
    * Interface to be implemented by all listeners of pomodoro actions.
+   * WARNING: Not guaranteed to be called from the UI thread!
    * <p/>
    * On a typical pomodoro the order of the events are:
    * pomodoroStarted - start() was called (could be user or auto-start)
@@ -73,7 +76,6 @@ public class PomodoroApi {
 
     /**
      * Action triggered every time the clock ticks.
-     * WARNING: Not guaranteed to be called from the UI thread!
      *
      * @param event Information about the Pomodoro Event.
      */
@@ -81,7 +83,6 @@ public class PomodoroApi {
 
     /**
      * Action triggered when the Pomodoro part ends (before the break).
-     * WARNING: Not guaranteed to be called from the UI thread!
      *
      * @param event Information about the Pomodoro Event.
      */
@@ -90,7 +91,6 @@ public class PomodoroApi {
     /**
      * Action triggered when the Break part starts.
      * Same for short and long break. You can get the current state from the event object.
-     * WARNING: Not guaranteed to be called from the UI thread!
      *
      * @param event Information about the Pomodoro Event.
      */
@@ -98,7 +98,6 @@ public class PomodoroApi {
 
     /**
      * Action triggered when the current Pomodoro finishes (could be early termination via stop()).
-     * WARNING: Not guaranteed to be called from the UI thread!
      *
      * @param event Information about the Pomodoro Event.
      */
@@ -224,26 +223,26 @@ public class PomodoroApi {
 
   private static final String DEBUG_TAG            = "pomoapi";
   /**/
-  public static final int    POMODORO_DURATION    = 25 * 60;
-  public static final int    SHORT_BREAK_DURATION = 5 * 60;
-  public static final int    LONG_BREAK_DURATION  = 14 * 60;
+  public static final  int    POMODORO_DURATION    = 25 * 60;
+  public static final  int    SHORT_BREAK_DURATION = 5 * 60;
+  public static final  int    LONG_BREAK_DURATION  = 14 * 60;
   /*/
   // Test times (for debugging)
-  public static final int    POMODORO_DURATION    = 6;
-  public static final int    SHORT_BREAK_DURATION = 3;
-  public static final int    LONG_BREAK_DURATION  = 4;
+  public static final  int    POMODORO_DURATION    = 6;
+  public static final  int    SHORT_BREAK_DURATION = 3;
+  public static final  int    LONG_BREAK_DURATION  = 4;
   /**/
 
   private static PomodoroApi mInstance = new PomodoroApi();
 
   private PomodoroEventListener mListener = null;
 
-  private final ScheduledExecutorService mExecutionService =
-      Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService mExecutionService = Executors.newSingleThreadScheduledExecutor();
 
-  private AtomicReference<ScheduledFuture> mCurrentPomodoro =
-      new AtomicReference<ScheduledFuture>();
-  private boolean                          mIsPaused        = false;
+  private AtomicReference<ScheduledFuture> mCurrentPomodoro = new AtomicReference<ScheduledFuture>();
+
+  private boolean mIsPaused  = false;
+  private boolean mAutoStart = false;
 
   private       Stats                          mStats            = new Stats();
   private       DateTime                       mLastPomodoroDate = new DateTime(0).withTime(4, 0, 0, 0);
@@ -342,7 +341,7 @@ public class PomodoroApi {
           try {
             // Force the UI to catch up and and give time to breath. We only need to do it here because of the
             // autostart, which will trigger another notification update immediately.
-            Thread.sleep(1000);
+            Thread.sleep(50);
             start();
           }
           catch (AlreadyRunningException e) {
@@ -392,8 +391,11 @@ public class PomodoroApi {
     }
 
     try {
+      // If we forced stop, we must override the value of the auto start, otherwise the client may think it is
+      // going to start again
+      boolean autoStart = currentTime == 0 && this.mAutoStart;
+      PomodoroEvent event = new PomodoroEvent(this, currentTime, autoStart, state);
       // I used actions because creating and passing callables for something so static isn't convenient ;)
-      PomodoroEvent event = new PomodoroEvent(this, currentTime, state);
       switch (action) {
         case START:
           mListener.pomodoroStarted(event);
@@ -419,7 +421,7 @@ public class PomodoroApi {
       }
     }
     catch (Exception e) {
-      Log.d(DEBUG_TAG, "Exception thrown while calling the listener: " + e.toString());
+      Log.e(DEBUG_TAG, "Exception thrown while calling the listener: " + e.toString());
     }
   }
 
