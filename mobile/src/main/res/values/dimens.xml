@@ -4,4 +4,5 @@
     <dimen name="controls_margin_bottom">30dp</dimen>
     <dimen name="controls_padding">30dp</dimen>
     <dimen name="button_small_margin">5dp</dimen>
+    <dimen name="controls_margin_top">5dp</dimen>
 </resources>
