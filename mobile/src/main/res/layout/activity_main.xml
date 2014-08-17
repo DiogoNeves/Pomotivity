@@ -32,6 +32,18 @@
         </FrameLayout>
     </ViewSwitcher>
 
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/auto_start"
+        android:id="@+id/auto_start_toggle"
+        android:layout_gravity="right|top"
+        android:layout_marginRight="@dimen/controls_padding"
+        android:layout_marginTop="@dimen/controls_margin_top"
+        android:textColor="?android:textColorPrimary"
+        android:textOff="@string/auto_start"
+        android:textOn="@string/auto_start"/>
+
     <TextView
         android:id="@+id/current_time"
         android:layout_width="wrap_content"
@@ -96,4 +108,5 @@
             android:text="@string/resume_button"
             android:visibility="gone"/>
     </LinearLayout>
+
 </FrameLayout>

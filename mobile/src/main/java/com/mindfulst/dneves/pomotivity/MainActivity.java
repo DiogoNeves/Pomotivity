@@ -8,7 +8,9 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 import android.widget.ViewSwitcher;
 
 import org.joda.time.Period;
@@ -54,6 +56,10 @@ public class MainActivity extends Activity {
     findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
     findViewById(R.id.resume_button).setOnClickListener(mResumeButtonListener);
 
+    ToggleButton autoStartToggle = (ToggleButton) findViewById(R.id.auto_start_toggle);
+    autoStartToggle.setChecked(api.getAutoStart());
+    autoStartToggle.setOnCheckedChangeListener(mAutoStartToggleListener);
+
     mFormatter =
         new PeriodFormatterBuilder().printZeroAlways().minimumPrintedDigits(2).appendMinutes().appendSeparator(":")
                                     .printZeroAlways().minimumPrintedDigits(2).appendSeconds().toFormatter();
@@ -63,16 +69,21 @@ public class MainActivity extends Activity {
     api.setPomodoroListener(new PomodoroApi.PomodoroEventListener() {
       @Override
       public void pomodoroStarted(final PomodoroApi.PomodoroEvent event) {
-        mTickStreamId = mPlayer.play(mTickSoundId, 1.0f, 1.0f, 1, -1, 1.0f);
-        if (mTickStreamId == 0) {
-          Log.e(DEBUG_TAG, "Oops, failed to play the tick sound");
-        }
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            mTickStreamId = mPlayer.play(mTickSoundId, 1.0f, 1.0f, 1, -1, 1.0f);
+            if (mTickStreamId == 0) {
+              Log.e(DEBUG_TAG, "Oops, failed to play the tick sound");
+            }
 
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
-        audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
+            audioManager.setStreamMute(AudioManager.STREAM_RING, true);
 
-        resetButtonsVisibility(false);
+            resetButtonsVisibility(false, event.autoStart);
+          }
+        });
       }
 
       @Override
@@ -116,7 +127,7 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            resetButtonsVisibility(true);
+            resetButtonsVisibility(true, event.autoStart);
 
             if (event.currentTime > 0) {
               AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -169,21 +180,22 @@ public class MainActivity extends Activity {
     });
   }
 
-  private void resetButtonsVisibility(boolean isFinishing) {
-    if (isFinishing) {
+  private void resetButtonsVisibility(boolean isFinishing, boolean isAutoStart) {
+    if (isFinishing && !isAutoStart) {
       findViewById(R.id.start_button).setVisibility(View.VISIBLE);
       findViewById(R.id.pause_button).setVisibility(View.GONE);
-      findViewById(R.id.stop_button).setVisibility(View.GONE);
-      findViewById(R.id.resume_button).setVisibility(View.GONE);
     }
     else {
       // Starting
       findViewById(R.id.start_button).setVisibility(View.GONE);
       findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
     }
+    findViewById(R.id.stop_button).setVisibility(View.GONE);
+    findViewById(R.id.resume_button).setVisibility(View.GONE);
   }
 
   private void setButtonsVisibility(boolean isPaused) {
+    findViewById(R.id.start_button).setVisibility(View.GONE);
     if (isPaused) {
       findViewById(R.id.pause_button).setVisibility(View.GONE);
       findViewById(R.id.resume_button).setVisibility(View.VISIBLE);
@@ -239,6 +251,13 @@ public class MainActivity extends Activity {
     @Override
     public void onClick(View view) {
       PomodoroApi.getInstance().resume();
+    }
+  };
+
+  CompoundButton.OnCheckedChangeListener mAutoStartToggleListener = new CompoundButton.OnCheckedChangeListener() {
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+      PomodoroApi.getInstance().setAutoStart(isChecked);
     }
   };
 }

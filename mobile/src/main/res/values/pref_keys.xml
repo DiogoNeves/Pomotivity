@@ -4,4 +4,5 @@
     <string name="all_time_key">all_time</string>
     <string name="total_days_key">total_days</string>
     <string name="last_pomodoro_key">last_pomodoro</string>
+    <string name="auto_start_key">auto_start</string>
 </resources>
