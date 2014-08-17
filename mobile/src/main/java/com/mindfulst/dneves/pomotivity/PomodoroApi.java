@@ -262,6 +262,7 @@ public class PomodoroApi {
 
   public void save(Context context, SharedPreferences.Editor prefEditor) {
     DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
+    prefEditor.putBoolean(context.getString(R.string.auto_start_key), mAutoStart);
     prefEditor.putString(context.getString(R.string.last_pomodoro_key), formatter.print(mLastPomodoroDate));
     mStats.save(context, prefEditor);
   }
@@ -274,6 +275,8 @@ public class PomodoroApi {
    */
   public void load(Context context, SharedPreferences preferences) {
     mStats = new Stats(context, preferences);
+    mAutoStart = preferences.getBoolean(context.getString(R.string.auto_start_key), false);
+
     DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
     final String defaultDate = formatter.print(new DateTime(0).withTime(4, 0, 0, 0));
     String lastPomodoroStr = preferences.getString(context.getString(R.string.last_pomodoro_key), defaultDate);
@@ -491,8 +494,16 @@ public class PomodoroApi {
    *
    * @param autoStart new value.
    */
-  protected void setAutoStart(boolean autoStart) {
+  public void setAutoStart(boolean autoStart) {
     mAutoStart = autoStart;
+  }
+
+  /**
+   * Gets the auto start flag value.
+   * @return the auto start value.
+   */
+  public boolean getAutoStart() {
+    return mAutoStart;
   }
 
   public void setPomodoroListener(PomodoroEventListener listener) {

@@ -55,7 +55,10 @@ public class MainActivity extends Activity {
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
     findViewById(R.id.pause_button).setOnClickListener(mPauseButtonListener);
     findViewById(R.id.resume_button).setOnClickListener(mResumeButtonListener);
-    ((ToggleButton) findViewById(R.id.auto_start_toggle)).setOnCheckedChangeListener(mAutoStartToggleListener);
+
+    ToggleButton autoStartToggle = (ToggleButton) findViewById(R.id.auto_start_toggle);
+    autoStartToggle.setChecked(api.getAutoStart());
+    autoStartToggle.setOnCheckedChangeListener(mAutoStartToggleListener);
 
     mFormatter =
         new PeriodFormatterBuilder().printZeroAlways().minimumPrintedDigits(2).appendMinutes().appendSeparator(":")
