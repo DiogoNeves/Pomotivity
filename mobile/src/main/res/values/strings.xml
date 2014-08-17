@@ -12,4 +12,8 @@
     <string name="stats">Stats</string>
     <string name="auto_start">Auto</string>
 
+    <string-array name="project_options">
+        <item>Testing</item>
+    </string-array>
+
 </resources>

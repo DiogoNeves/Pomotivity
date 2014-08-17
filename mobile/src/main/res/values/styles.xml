@@ -18,4 +18,9 @@
     <style name="break_panel">
         <item name="android:background">@color/secondary</item>
     </style>
+
+    <style name="current_project_panel">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:layout_height">@dimen/pomodoro_counter_height</item>
+    </style>
 </resources>
