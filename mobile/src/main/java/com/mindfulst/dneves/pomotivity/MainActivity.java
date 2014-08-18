@@ -8,7 +8,9 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.ViewSwitcher;
@@ -50,6 +52,10 @@ public class MainActivity extends Activity {
       mTickSoundId = mPlayer.load(this, R.raw.tick_sound, 1);
       mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
     }
+
+    ArrayAdapter adapter =
+        ArrayAdapter.createFromResource(this, R.array.project_options, android.R.layout.simple_list_item_1);
+    ((Spinner) findViewById(R.id.current_project)).setAdapter(adapter);
 
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);

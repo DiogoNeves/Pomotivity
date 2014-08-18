@@ -14,7 +14,7 @@
     <string name="current_project_default_text">Set Current Project</string>
 
     <string-array name="project_options">
-        <item>Testing</item>
+        <item>No Project</item>
     </string-array>
 
 </resources>
