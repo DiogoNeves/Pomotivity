@@ -11,6 +11,7 @@
     <string name="action_settings">Settings</string>
     <string name="stats">Stats</string>
     <string name="auto_start">Auto</string>
+    <string name="current_project_default_text">Set Current Project</string>
 
     <string-array name="project_options">
         <item>Testing</item>

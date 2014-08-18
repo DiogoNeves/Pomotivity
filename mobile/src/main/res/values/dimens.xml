@@ -7,4 +7,5 @@
     <dimen name="controls_margin_top">5dp</dimen>
     <dimen name="pomodoro_counter_height">150dp</dimen>
     <dimen name="timer_top_margin">130dp</dimen>
+    <dimen name="current_project_margin_top">10dp</dimen>
 </resources>

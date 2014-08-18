@@ -64,15 +64,24 @@
         android:rowCount="5"
         android:columnCount="11">
 
-        <Spinner
+        <AutoCompleteTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/current_project_choice"
+            android:id="@+id/current_project"
             android:layout_alignParentTop="true"
-            android:spinnerMode="dropdown"
-            android:entries="@array/project_options"
-            android:layout_centerHorizontal="true"
-            android:prompt="@string/app_name"/>
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/current_project_margin_top"
+            android:layout_alignParentRight="true"
+            android:autoText="false"
+            android:editable="true"
+            android:gravity="center|fill"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:inputType="textShortMessage|text|textCapSentences|textAutoComplete"
+            android:textColor="?android:textColorSecondary"
+            android:hint="@string/current_project_default_text"/>
     </RelativeLayout>
 
     <LinearLayout
