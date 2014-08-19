@@ -181,6 +181,7 @@ public class PomodoroApi {
       this.finishedToday = preferences.getInt(context.getString(R.string.finished_today_key), 0);
       this.allTime = preferences.getInt(context.getString(R.string.all_time_key), 0);
       this.totalDays = preferences.getInt(context.getString(R.string.total_days_key), 0);
+      // TODO: Finish this
       this.mProjectMap = new HashMap<String, Integer>();
     }
 
@@ -195,6 +196,8 @@ public class PomodoroApi {
 
     /**
      * Increments both finished today and all time.
+     *
+     * @param currentProject Name of the current active project. This will increment its counter too.
      *
      * @return new Stats instance with the incremented counters.
      */
@@ -234,6 +237,7 @@ public class PomodoroApi {
      * @param prefEditor Editor used to save the state.
      */
     protected void save(Context context, SharedPreferences.Editor prefEditor) {
+      // TODO: Save counters
       prefEditor.putInt(context.getString(R.string.finished_today_key), finishedToday)
                 .putInt(context.getString(R.string.all_time_key), allTime)
                 .putInt(context.getString(R.string.total_days_key), totalDays);
@@ -530,6 +534,7 @@ public class PomodoroApi {
     mListener = listener;
   }
 
+  // TODO: Remove this!
   public void runTest() {
     mStats.incrementCounter(null);
     Log.d(DEBUG_TAG, mStats.toString());
