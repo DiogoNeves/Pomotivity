@@ -68,7 +68,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/current_project"
-            android:layout_marginTop="@dimen/current_project_margin_top"/>
+            android:layout_marginTop="@dimen/current_project_margin_top"
+            android:spinnerMode="dropdown"
+            android:prompt="@string/project_hint"/>
     </RelativeLayout>
 
     <LinearLayout

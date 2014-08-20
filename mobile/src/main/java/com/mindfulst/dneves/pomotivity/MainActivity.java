@@ -8,6 +8,7 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
@@ -53,9 +54,30 @@ public class MainActivity extends Activity {
       mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
     }
 
-    ArrayAdapter adapter =
-        ArrayAdapter.createFromResource(this, R.array.project_options, android.R.layout.simple_list_item_1);
-    ((Spinner) findViewById(R.id.current_project)).setAdapter(adapter);
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item) {
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+        View v = super.getView(position, convertView, parent);
+        if (position == getCount()) {
+          ((TextView)v.findViewById(android.R.id.text1)).setText("");
+          ((TextView) v.findViewById(android.R.id.text1)).setHint(getResources().getString(R.string.project_hint));
+        }
+        return v;
+      }
+
+      @Override
+      public int getCount() {
+        return super.getCount() - 1;
+      }
+
+    };
+    adapter.add(getResources().getString(R.string.project_add));
+    // Always keep this last ;)
+    adapter.add(getResources().getString(R.string.project_hint));
+    Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
+    projectChooser.setAdapter(adapter);
+    projectChooser.setSelection(adapter.getCount());
 
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
