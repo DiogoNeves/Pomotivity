@@ -2,7 +2,6 @@ package com.mindfulst.dneves.pomotivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.joda.time.DateTime;
@@ -151,8 +150,8 @@ public class PomodoroApi {
       finishedToday = 0;
       allTime = 0;
       totalDays = 0;
-      // This is an immutable class, no way we're going to have more than none projects at this moment
-      mProjectMap = null;
+      // For simplicity always create the map even though it can't get changed
+      mProjectMap = new HashMap<String, Integer>();
     }
 
     /**
@@ -198,7 +197,6 @@ public class PomodoroApi {
      * Increments both finished today and all time.
      *
      * @param currentProject Name of the current active project. This will increment its counter too.
-     *
      * @return new Stats instance with the incremented counters.
      */
     protected Stats incrementCounter(String currentProject) {
@@ -226,8 +224,8 @@ public class PomodoroApi {
     @Override
     public String toString() {
       return String
-          .format("PomodoroApi.Stats(finishedToday:%d, allTime:%d, totalDays:%d, totalProjects:%d)",
-                  finishedToday, allTime, totalDays, mProjectMap.size());
+          .format("PomodoroApi.Stats(finishedToday:%d, allTime:%d, totalDays:%d, totalProjects:%d)", finishedToday,
+                  allTime, totalDays, mProjectMap.size());
     }
 
     /**
@@ -532,15 +530,5 @@ public class PomodoroApi {
 
   public void setPomodoroListener(PomodoroEventListener listener) {
     mListener = listener;
-  }
-
-  // TODO: Remove this!
-  public void runTest() {
-    mStats.incrementCounter(null);
-    Log.d(DEBUG_TAG, mStats.toString());
-    mStats.incrementCounter("test");
-    Log.d(DEBUG_TAG, mStats.toString());
-    mStats.incrementCounter("test");
-    Log.d(DEBUG_TAG, mStats.toString());
   }
 }

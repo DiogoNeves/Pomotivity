@@ -41,10 +41,6 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    // TODO: Remove this!!!
-    PomodoroApi testApi = PomodoroApi.getInstance();
-    testApi.runTest();
-
     mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
     PomodoroApi api = PomodoroApi.getInstance();
