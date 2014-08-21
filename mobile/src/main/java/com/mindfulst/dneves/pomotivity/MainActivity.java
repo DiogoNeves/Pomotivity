@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
@@ -54,13 +55,13 @@ public class MainActivity extends Activity {
       mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
     }
 
-    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item) {
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item) {
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
         View v = super.getView(position, convertView, parent);
         if (position == getCount()) {
-          ((TextView)v.findViewById(android.R.id.text1)).setText("");
+          ((TextView) v.findViewById(android.R.id.text1)).setText("");
           ((TextView) v.findViewById(android.R.id.text1)).setHint(getResources().getString(R.string.project_hint));
         }
         return v;
@@ -72,12 +73,39 @@ public class MainActivity extends Activity {
       }
 
     };
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     adapter.add(getResources().getString(R.string.project_add));
     // Always keep this last ;)
     adapter.add(getResources().getString(R.string.project_hint));
     Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
     projectChooser.setAdapter(adapter);
     projectChooser.setSelection(adapter.getCount());
+    projectChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Log.d(DEBUG_TAG, String
+            .format("count: %d; text: %s; pos: %d; id: %d", parent.getCount(), ((TextView) view).getText(),
+                    position, id));
+        // TODO: Clean this code!
+        if (position == parent.getCount()) {
+          // This is the hint
+          return;
+        }
+        else if (position == parent.getCount() - 1) {
+          // + Project
+          Log.d(DEBUG_TAG, "Adding project");
+        }
+        else {
+          // User Project
+          Log.d(DEBUG_TAG, String.format("Settting to user project %s", ((TextView) view).getText()));
+        }
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+        Log.d(DEBUG_TAG, String.format("count: %d", parent.getCount()));
+      }
+    });
 
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
