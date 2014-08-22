@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
         }
         else {
           // User Project
-          Log.d(DEBUG_TAG, String.format("Settting to user project %s", ((TextView) view).getText()));
+          Log.d(DEBUG_TAG, String.format("Setting to user project %s", ((TextView) view).getText()));
         }
       }
 
