@@ -3,12 +3,14 @@ package com.mindfulst.dneves.pomotivity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Adapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -270,6 +272,7 @@ public class PomodoroApi {
   private final AtomicReference<PomodoroState> mCurrentState     =
       new AtomicReference<PomodoroState>(PomodoroState.NONE);
   private final AtomicInteger                  mCurrentTime      = new AtomicInteger(POMODORO_DURATION);
+  private final AtomicReference<String>        mCurrentProject   = new AtomicReference<String>("");
 
   public static PomodoroApi getInstance() {
     return mInstance;
@@ -458,7 +461,7 @@ public class PomodoroApi {
       mLastPomodoroDate = now;
     }
     // Do this after the next day because it will reset the today counter
-    mStats = mStats.incrementCounter(null);
+    mStats = mStats.incrementCounter(mCurrentProject.get());
     Log.d(DEBUG_TAG, "Current stats: " + mStats);
   }
 
@@ -526,6 +529,19 @@ public class PomodoroApi {
    */
   public boolean getAutoStart() {
     return mAutoStart;
+  }
+
+  public void setCurrentProject(final String currentProject) {
+    mCurrentProject.set(currentProject);
+  }
+
+  public Collection<String> getAllProjects() {
+    Collection<String> projectNames = mStats.mProjectMap.keySet();
+    String currentProject = mCurrentProject.get();
+    if (currentProject != null && !currentProject.isEmpty()) {
+      projectNames.add(mCurrentProject.get());
+    }
+    return projectNames;
   }
 
   public void setPomodoroListener(PomodoroEventListener listener) {

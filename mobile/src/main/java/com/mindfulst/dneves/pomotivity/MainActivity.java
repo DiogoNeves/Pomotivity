@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
 
     mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
-    PomodoroApi api = PomodoroApi.getInstance();
+    final PomodoroApi api = PomodoroApi.getInstance();
     api.load(this, getPreferences(Context.MODE_PRIVATE));
 
     // We need 2 channels, 1 for the tick the other for the end alarm
@@ -74,9 +74,11 @@ public class MainActivity extends Activity {
 
     };
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    adapter.addAll(api.getAllProjects());
+    // Always keep both of this last ;)
     adapter.add(getResources().getString(R.string.project_add));
-    // Always keep this last ;)
     adapter.add(getResources().getString(R.string.project_hint));
+
     Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
     projectChooser.setAdapter(adapter);
     projectChooser.setSelection(adapter.getCount());
@@ -97,7 +99,9 @@ public class MainActivity extends Activity {
         }
         else {
           // User Project
-          Log.d(DEBUG_TAG, String.format("Setting to user project %s", ((TextView) view).getText()));
+          String projectName = ((TextView) view).getText().toString();
+          PomodoroApi.getInstance().setCurrentProject(projectName);
+          Log.d(DEBUG_TAG, String.format("Setting to current project to %s", projectName));
         }
       }
 
