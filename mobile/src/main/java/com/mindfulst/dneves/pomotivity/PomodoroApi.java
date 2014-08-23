@@ -3,7 +3,6 @@ package com.mindfulst.dneves.pomotivity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Adapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
