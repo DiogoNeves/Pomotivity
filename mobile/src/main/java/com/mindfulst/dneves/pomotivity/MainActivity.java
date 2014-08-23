@@ -127,16 +127,20 @@ public class MainActivity extends Activity {
     projectChooser.setAdapter(mProjectAdapter);
     projectChooser.setSelection(mProjectAdapter.getCount());
     projectChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      // We're going to set selection after this, no problem
+      private int lastSelection = 0;
+
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if (position != parent.getCount()) {
-          if (position == parent.getCount() - 1) {
-            // + Project
-            Log.d(DEBUG_TAG, "Adding project");
-            parent.setSelection(parent.getCount());
-            mAddProjectDialog.show();
-          }
-          else {
+        if (position == parent.getCount() - 1) {
+          // + Project
+          Log.d(DEBUG_TAG, "Adding project");
+          parent.setSelection(lastSelection);
+          mAddProjectDialog.show();
+        }
+        else {
+          lastSelection = position;
+          if (position != parent.getCount()) {
             // User Project
             String projectName = ((TextView) view).getText().toString();
             PomodoroApi.getInstance().setCurrentProject(projectName);
