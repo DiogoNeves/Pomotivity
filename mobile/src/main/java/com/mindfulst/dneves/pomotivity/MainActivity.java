@@ -1,17 +1,21 @@
 package com.mindfulst.dneves.pomotivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -20,6 +24,10 @@ import android.widget.ViewSwitcher;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -30,6 +38,10 @@ public class MainActivity extends Activity {
 
   private ViewSwitcher mSwitcher = null;
 
+  private Set<String>          mProjectSet       = null;
+  private ArrayAdapter<String> mProjectAdapter   = null;
+  private AlertDialog          mAddProjectDialog = null;
+
   private SoundPool mPlayer = null;
 
   private static int mTickSoundId  = 0;
@@ -37,6 +49,35 @@ public class MainActivity extends Activity {
   private static int mAlarmSoundId = 0;
 
   private PeriodFormatter mFormatter = null;
+
+  private AlertDialog createProjectDialog() {
+    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+    alert.setTitle(R.string.project_dialog_title);
+    final EditText input = new EditText(this);
+    input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+    input.setHint(R.string.project_dialog_hint);
+    alert.setView(input);
+
+    alert.setPositiveButton(R.string.project_dialog_ok, new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+        String newProjectName = input.getText().toString();
+        input.setText("");
+        if (newProjectName != null && !newProjectName.isEmpty() && !mProjectSet.contains(newProjectName)) {
+          mProjectSet.add(newProjectName);
+          mProjectAdapter.insert(newProjectName, 0);
+          mProjectAdapter.notifyDataSetChanged();
+          ((Spinner) findViewById(R.id.current_project)).setSelection(0);
+        }
+      }
+    });
+
+    alert.setNegativeButton(R.string.project_dialog_cancel, new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+      }
+    });
+    return alert.create();
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +96,7 @@ public class MainActivity extends Activity {
       mAlarmSoundId = mPlayer.load(this, R.raw.alarm_sound, 1);
     }
 
-    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item) {
+    mProjectAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item) {
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
@@ -73,35 +114,34 @@ public class MainActivity extends Activity {
       }
 
     };
-    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    adapter.addAll(api.getAllProjects());
+    Collection<String> allProjects = api.getAllProjects();
+    mProjectSet = new HashSet<String>(allProjects);
+    mProjectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    mProjectAdapter.addAll(allProjects);
     // Always keep both of this last ;)
-    adapter.add(getResources().getString(R.string.project_add));
-    adapter.add(getResources().getString(R.string.project_hint));
+    mProjectAdapter.add(getResources().getString(R.string.project_add));
+    mProjectAdapter.add(getResources().getString(R.string.project_hint));
+    mAddProjectDialog = createProjectDialog();
 
     Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
-    projectChooser.setAdapter(adapter);
-    projectChooser.setSelection(adapter.getCount());
+    projectChooser.setAdapter(mProjectAdapter);
+    projectChooser.setSelection(mProjectAdapter.getCount());
     projectChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Log.d(DEBUG_TAG, String
-            .format("count: %d; text: %s; pos: %d; id: %d", parent.getCount(), ((TextView) view).getText(),
-                    position, id));
-        // TODO: Clean this code!
-        if (position == parent.getCount()) {
-          // This is the hint
-          return;
-        }
-        else if (position == parent.getCount() - 1) {
-          // + Project
-          Log.d(DEBUG_TAG, "Adding project");
-        }
-        else {
-          // User Project
-          String projectName = ((TextView) view).getText().toString();
-          PomodoroApi.getInstance().setCurrentProject(projectName);
-          Log.d(DEBUG_TAG, String.format("Setting to current project to %s", projectName));
+        if (position != parent.getCount()) {
+          if (position == parent.getCount() - 1) {
+            // + Project
+            Log.d(DEBUG_TAG, "Adding project");
+            parent.setSelection(parent.getCount());
+            mAddProjectDialog.show();
+          }
+          else {
+            // User Project
+            String projectName = ((TextView) view).getText().toString();
+            PomodoroApi.getInstance().setCurrentProject(projectName);
+            Log.d(DEBUG_TAG, String.format("Setting to current project to %s", projectName));
+          }
         }
       }
 
