@@ -12,12 +12,14 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewSwitcher;
 
@@ -63,11 +65,29 @@ public class MainActivity extends Activity {
       public void onClick(DialogInterface dialog, int whichButton) {
         String newProjectName = input.getText().toString();
         input.setText("");
-        if (newProjectName != null && !newProjectName.isEmpty() && !mProjectSet.contains(newProjectName)) {
-          mProjectSet.add(newProjectName);
-          mProjectAdapter.insert(newProjectName, 0);
-          mProjectAdapter.notifyDataSetChanged();
-          ((Spinner) findViewById(R.id.current_project)).setSelection(0);
+        if (newProjectName != null && !newProjectName.isEmpty()) {
+          if (newProjectName.equalsIgnoreCase(getResources().getString(R.string.project_add))) {
+            String message = String.format(getResources().getString(R.string.project_reserved_warning), newProjectName);
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+          }
+          else if (mProjectSet.contains(newProjectName.toLowerCase())) {
+            // Somewhere in the list already, find it and select
+            // (-1 because last one is + Project)
+            for (int i = 0; i < mProjectAdapter.getCount() - 1; ++i) {
+              String item = mProjectAdapter.getItem(i);
+              if (item.equalsIgnoreCase(newProjectName)) {
+                ((Spinner) findViewById(R.id.current_project)).setSelection(i);
+                break;
+              }
+            }
+          }
+          else {
+            // New project, add it
+            mProjectSet.add(newProjectName.toLowerCase());
+            mProjectAdapter.insert(newProjectName, 0);
+            mProjectAdapter.notifyDataSetChanged();
+            ((Spinner) findViewById(R.id.current_project)).setSelection(0);
+          }
         }
       }
     });
@@ -115,7 +135,10 @@ public class MainActivity extends Activity {
 
     };
     Collection<String> allProjects = api.getAllProjects();
-    mProjectSet = new HashSet<String>(allProjects);
+    mProjectSet = new HashSet<String>(allProjects.size());
+    for (String proj : allProjects) {
+      mProjectSet.add(proj.toLowerCase());
+    }
     mProjectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     mProjectAdapter.addAll(allProjects);
     // Always keep both of this last ;)
@@ -135,6 +158,7 @@ public class MainActivity extends Activity {
         if (position == parent.getCount() - 1) {
           // + Project
           Log.d(DEBUG_TAG, "Adding project");
+          mAddProjectDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
           parent.setSelection(lastSelection);
           mAddProjectDialog.show();
         }
