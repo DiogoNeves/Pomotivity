@@ -9,8 +9,13 @@ import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -136,9 +141,10 @@ public class PomodoroApi {
    * Class responsible for keeping simple stats state.
    */
   public static final class Stats {
-    public final int finishedToday;
-    public final int allTime;
-    public final int totalDays;
+    public final  int                  finishedToday;
+    public final  int                  allTime;
+    public final  int                  totalDays;
+    private final Map<String, Integer> mProjectMap;
 
     /**
      * Default constructor.
@@ -147,6 +153,8 @@ public class PomodoroApi {
       finishedToday = 0;
       allTime = 0;
       totalDays = 0;
+      // For simplicity always create the map even though it can't get changed
+      mProjectMap = new HashMap<String, Integer>();
     }
 
     /**
@@ -155,11 +163,14 @@ public class PomodoroApi {
      * @param finishedToday Today's counter.
      * @param allTime       All time pomodoro counter.
      * @param totalDays     Total days with Pomodoros.
+     * @param projectMap    Map of current projects with their individual pomodoro counters.
      */
-    protected Stats(int finishedToday, int allTime, int totalDays) {
+    protected Stats(int finishedToday, int allTime, int totalDays, Map<String, Integer> projectMap) {
       this.finishedToday = finishedToday;
       this.allTime = allTime;
       this.totalDays = totalDays;
+      // Don't copy because this is accessed only from this class and it was mutated already before calling this
+      this.mProjectMap = projectMap;
     }
 
     /**
@@ -172,6 +183,7 @@ public class PomodoroApi {
       this.finishedToday = preferences.getInt(context.getString(R.string.finished_today_key), 0);
       this.allTime = preferences.getInt(context.getString(R.string.all_time_key), 0);
       this.totalDays = preferences.getInt(context.getString(R.string.total_days_key), 0);
+      this.mProjectMap = parseProjectMap(preferences.getStringSet(context.getString(R.string.projects), null));
     }
 
     /**
@@ -180,16 +192,42 @@ public class PomodoroApi {
      * @return new Stats instance with reset today counter.
      */
     protected Stats resetToday() {
-      return new Stats(0, allTime, totalDays);
+      return new Stats(0, allTime, totalDays, mProjectMap);
+    }
+
+    /**
+     * Adds a project name to the map.
+     *
+     * @param project Project name to add.
+     * @return A new stats object.
+     */
+    protected Stats addProject(String project) {
+      if (project == null || project.isEmpty()) {
+        return this;
+      }
+
+      // We need to copy because some code might use the previous Stats objects which should be immutable
+      HashMap<String, Integer> newProjectsMap = new HashMap<String, Integer>(mProjectMap);
+      newProjectsMap.put(project, newProjectsMap.containsKey(project) ? newProjectsMap.get(project) : 0);
+      return new Stats(finishedToday, allTime, totalDays, newProjectsMap);
     }
 
     /**
      * Increments both finished today and all time.
      *
+     * @param currentProject Name of the current active project. This will increment its counter too.
      * @return new Stats instance with the incremented counters.
      */
-    protected Stats incrementCounter() {
-      return new Stats(finishedToday + 1, allTime + 1, totalDays);
+    protected Stats incrementCounter(String currentProject) {
+      Map<String, Integer> newProjectsMap = mProjectMap;
+      // If we have a current project we'll have to change it...
+      if (currentProject != null && !currentProject.isEmpty()) {
+        // We need to copy because some code might use the previous Stats objects which should be immutable
+        newProjectsMap = new HashMap<String, Integer>(mProjectMap);
+        newProjectsMap.put(currentProject,
+                           newProjectsMap.containsKey(currentProject) ? newProjectsMap.get(currentProject) + 1 : 1);
+      }
+      return new Stats(finishedToday + 1, allTime + 1, totalDays, newProjectsMap);
     }
 
     /**
@@ -199,13 +237,18 @@ public class PomodoroApi {
      * @return new Stats instance with the information about the next day.
      */
     protected Stats nextDay() {
-      return new Stats(0, allTime, totalDays + 1);
+      return new Stats(0, allTime, totalDays + 1, mProjectMap);
     }
 
     @Override
     public String toString() {
       return String
-          .format("PomodoroApi.Stats(finishedToday:%d, allTime:%d, totalDays:%d)", finishedToday, allTime, totalDays);
+          .format("PomodoroApi.Stats(finishedToday:%d, allTime:%d, totalDays:%d, totalProjects:%d)", finishedToday,
+                  allTime, totalDays, mProjectMap.size());
+    }
+
+    public Map<String, Integer> getProjects() {
+      return new HashMap<String, Integer>(mProjectMap);
     }
 
     /**
@@ -217,7 +260,29 @@ public class PomodoroApi {
     protected void save(Context context, SharedPreferences.Editor prefEditor) {
       prefEditor.putInt(context.getString(R.string.finished_today_key), finishedToday)
                 .putInt(context.getString(R.string.all_time_key), allTime)
-                .putInt(context.getString(R.string.total_days_key), totalDays);
+                .putInt(context.getString(R.string.total_days_key), totalDays)
+                .putStringSet(context.getString(R.string.projects), getProjectMapAsSet());
+    }
+
+    private Set<String> getProjectMapAsSet() {
+      Set<String> projectSet = new HashSet<String>(mProjectMap.size());
+      for (Map.Entry<String, Integer> projectInfo : mProjectMap.entrySet()) {
+        projectSet.add(String.format("%s,%d", projectInfo.getKey(), projectInfo.getValue()));
+      }
+      return projectSet;
+    }
+
+    private static Map<String, Integer> parseProjectMap(Set<String> projectSet) {
+      if (projectSet == null) {
+        return new HashMap<String, Integer>();
+      }
+
+      HashMap<String, Integer> projectMap = new HashMap<String, Integer>(projectSet.size());
+      for (String projectInfo : projectSet) {
+        String[] projectValues = projectInfo.split(",");
+        projectMap.put(projectValues[0], Integer.parseInt(projectValues[1]));
+      }
+      return projectMap;
     }
   }
 
@@ -249,6 +314,7 @@ public class PomodoroApi {
   private final AtomicReference<PomodoroState> mCurrentState     =
       new AtomicReference<PomodoroState>(PomodoroState.NONE);
   private final AtomicInteger                  mCurrentTime      = new AtomicInteger(POMODORO_DURATION);
+  private final AtomicReference<String>        mCurrentProject   = new AtomicReference<String>("");
 
   public static PomodoroApi getInstance() {
     return mInstance;
@@ -264,6 +330,7 @@ public class PomodoroApi {
     DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
     prefEditor.putBoolean(context.getString(R.string.auto_start_key), mAutoStart);
     prefEditor.putString(context.getString(R.string.last_pomodoro_key), formatter.print(mLastPomodoroDate));
+    prefEditor.putString(context.getString(R.string.current_project), mCurrentProject.get());
     mStats.save(context, prefEditor);
   }
 
@@ -276,6 +343,7 @@ public class PomodoroApi {
   public void load(Context context, SharedPreferences preferences) {
     mStats = new Stats(context, preferences);
     mAutoStart = preferences.getBoolean(context.getString(R.string.auto_start_key), false);
+    mCurrentProject.set(preferences.getString(context.getString(R.string.current_project), ""));
 
     DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
     final String defaultDate = formatter.print(new DateTime(0).withTime(4, 0, 0, 0));
@@ -437,7 +505,7 @@ public class PomodoroApi {
       mLastPomodoroDate = now;
     }
     // Do this after the next day because it will reset the today counter
-    mStats = mStats.incrementCounter();
+    mStats = mStats.incrementCounter(mCurrentProject.get());
     Log.d(DEBUG_TAG, "Current stats: " + mStats);
   }
 
@@ -500,10 +568,29 @@ public class PomodoroApi {
 
   /**
    * Gets the auto start flag value.
+   *
    * @return the auto start value.
    */
   public boolean getAutoStart() {
     return mAutoStart;
+  }
+
+  public void setCurrentProject(final String currentProject) {
+    mCurrentProject.set(currentProject);
+    mStats = mStats.addProject(currentProject);
+  }
+
+  public String getCurrentProject() {
+    return mCurrentProject.get();
+  }
+
+  public Collection<String> getAllProjects() {
+    HashSet<String> projectNames = new HashSet<String>(mStats.getProjects().keySet());
+    String currentProject = mCurrentProject.get();
+    if (currentProject != null && !currentProject.isEmpty()) {
+      projectNames.add(mCurrentProject.get());
+    }
+    return projectNames;
   }
 
   public void setPomodoroListener(PomodoroEventListener listener) {

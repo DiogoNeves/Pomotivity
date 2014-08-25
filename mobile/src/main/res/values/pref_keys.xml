@@ -5,4 +5,6 @@
     <string name="total_days_key">total_days</string>
     <string name="last_pomodoro_key">last_pomodoro</string>
     <string name="auto_start_key">auto_start</string>
+    <string name="projects">projects</string>
+    <string name="current_project">current_project</string>
 </resources>

@@ -6,4 +6,6 @@
     <color name="secondary_dark">#303f9f</color>
     <color name="accent">#76ff03</color>
     <color name="accent_secondary">#ccff90</color>
+    <color name="light_text">@android:color/white</color>
+    <color name="dark_text">@android:color/black</color>
 </resources>

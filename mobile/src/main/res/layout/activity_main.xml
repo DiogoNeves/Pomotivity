@@ -1,15 +1,19 @@
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     tools:context=".MainActivity">
 
     <ViewSwitcher
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/view_switcher"
-        >
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp"
+        android:layout_above="@+id/current_project_panel">
 
         <FrameLayout
             android:id="@+id/pomodoro_panel"
@@ -39,33 +43,52 @@
         android:id="@+id/auto_start_toggle"
         android:layout_gravity="right|top"
         android:layout_marginRight="@dimen/controls_padding"
-        android:layout_marginTop="@dimen/controls_margin_top"
         android:textColor="?android:textColorPrimary"
         android:textOff="@string/auto_start"
-        android:textOn="@string/auto_start"/>
+        android:textOn="@string/auto_start"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"/>
 
-    <TextView
-        android:id="@+id/current_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/current_time"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="@dimen/timer_font_size"
-        android:typeface="monospace"
-        android:layout_marginBottom="@dimen/controls_margin_bottom"/>
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/pomodoro_counter_height"
+        style="@style/current_project_panel"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="false"
+        android:layout_marginTop="0dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:id="@+id/current_project_panel"
+        android:rowCount="5"
+        android:columnCount="11">
+
+        <Spinner
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/current_project"
+            android:layout_marginTop="@dimen/current_project_margin_top"
+            android:spinnerMode="dropdown"
+            android:prompt="@string/project_hint"/>
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="@dimen/controls_margin_bottom"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:paddingLeft="@dimen/controls_padding"
         android:paddingRight="@dimen/controls_padding"
-        >
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true">
 
         <Button
             android:id="@+id/start_button"
@@ -109,4 +132,20 @@
             android:visibility="gone"/>
     </LinearLayout>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/current_time"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/timer_font_size"
+        android:typeface="monospace"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="@dimen/timer_top_margin"
+        android:textColor="?android:textColorSecondary"/>
+
+</RelativeLayout>
