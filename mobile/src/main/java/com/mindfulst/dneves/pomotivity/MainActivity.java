@@ -52,6 +52,17 @@ public class MainActivity extends Activity {
 
   private PeriodFormatter mFormatter = null;
 
+  private void setProjectTo(String projectName) {
+    // (-1 because last one is + Project)
+    for (int i = 0; i < mProjectAdapter.getCount() - 1; ++i) {
+      String item = mProjectAdapter.getItem(i);
+      if (item.equalsIgnoreCase(projectName)) {
+        ((Spinner) findViewById(R.id.current_project)).setSelection(i);
+        break;
+      }
+    }
+  }
+
   private AlertDialog createProjectDialog() {
     AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
@@ -72,21 +83,20 @@ public class MainActivity extends Activity {
           }
           else if (mProjectSet.contains(newProjectName.toLowerCase())) {
             // Somewhere in the list already, find it and select
-            // (-1 because last one is + Project)
-            for (int i = 0; i < mProjectAdapter.getCount() - 1; ++i) {
-              String item = mProjectAdapter.getItem(i);
-              if (item.equalsIgnoreCase(newProjectName)) {
-                ((Spinner) findViewById(R.id.current_project)).setSelection(i);
-                break;
-              }
-            }
+            setProjectTo(newProjectName);
           }
           else {
             // New project, add it
             mProjectSet.add(newProjectName.toLowerCase());
             mProjectAdapter.insert(newProjectName, 0);
             mProjectAdapter.notifyDataSetChanged();
-            ((Spinner) findViewById(R.id.current_project)).setSelection(0);
+            Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
+            if (projectChooser.getSelectedItemPosition() != 0) {
+              projectChooser.setSelection(0);
+            }
+            else {
+              PomodoroApi.getInstance().setCurrentProject(newProjectName);
+            }
           }
         }
       }
@@ -107,7 +117,8 @@ public class MainActivity extends Activity {
     mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
     final PomodoroApi api = PomodoroApi.getInstance();
-    api.load(this, getPreferences(Context.MODE_PRIVATE));
+    SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+    api.load(this, preferences);
 
     // We need 2 channels, 1 for the tick the other for the end alarm
     if (mPlayer == null) {
@@ -149,6 +160,10 @@ public class MainActivity extends Activity {
     Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
     projectChooser.setAdapter(mProjectAdapter);
     projectChooser.setSelection(mProjectAdapter.getCount());
+    final String currentProject = api.getCurrentProject();
+    if (currentProject != null && !currentProject.isEmpty()) {
+      setProjectTo(currentProject);
+    }
     projectChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       // We're going to set selection after this, no problem
       private int lastSelection = 0;
@@ -162,7 +177,7 @@ public class MainActivity extends Activity {
           parent.setSelection(lastSelection);
           mAddProjectDialog.show();
         }
-        else {
+        else if (lastSelection != position) {
           lastSelection = position;
           if (position != parent.getCount()) {
             // User Project
@@ -175,7 +190,6 @@ public class MainActivity extends Activity {
 
       @Override
       public void onNothingSelected(AdapterView<?> parent) {
-        Log.d(DEBUG_TAG, String.format("count: %d", parent.getCount()));
       }
     });
 
