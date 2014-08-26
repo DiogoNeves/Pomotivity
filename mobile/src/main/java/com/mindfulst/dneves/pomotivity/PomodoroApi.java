@@ -575,6 +575,11 @@ public class PomodoroApi {
     return mAutoStart;
   }
 
+  /**
+   * Sets the current project and adds it to the list of known projects if it doesn't exist yet.
+   *
+   * @param currentProject Name of the current project to set.
+   */
   public void setCurrentProject(final String currentProject) {
     mCurrentProject.set(currentProject);
     mStats = mStats.addProject(currentProject);
