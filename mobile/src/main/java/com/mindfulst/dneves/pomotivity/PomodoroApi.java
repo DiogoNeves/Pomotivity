@@ -298,8 +298,6 @@ public class PomodoroApi {
   public static final  int    LONG_BREAK_DURATION  = 4;
   /**/
 
-  private static PomodoroApi mInstance = new PomodoroApi();
-
   private PomodoroEventListener mListener = null;
 
   private final ScheduledExecutorService mExecutionService = Executors.newSingleThreadScheduledExecutor();
@@ -316,11 +314,7 @@ public class PomodoroApi {
   private final AtomicInteger                  mCurrentTime      = new AtomicInteger(POMODORO_DURATION);
   private final AtomicReference<String>        mCurrentProject   = new AtomicReference<String>("");
 
-  public static PomodoroApi getInstance() {
-    return mInstance;
-  }
-
-  private PomodoroApi() {}
+  public PomodoroApi() {}
 
   public Stats getStats() {
     return mStats;
