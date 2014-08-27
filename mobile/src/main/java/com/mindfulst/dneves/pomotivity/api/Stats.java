@@ -33,12 +33,15 @@ public final class Stats {
   /**
    * Attribute constructor.
    *
+   * This should be used internally only.
+   * This class should only be constructed with default values, load constructor or by any of the methods.
+   *
    * @param finishedToday Today's counter.
    * @param allTime       All time pomodoro counter.
    * @param totalDays     Total days with Pomodoros.
    * @param projectMap    Map of current projects with their individual pomodoro counters.
    */
-  protected Stats(int finishedToday, int allTime, int totalDays, Map<String, Integer> projectMap) {
+  private Stats(int finishedToday, int allTime, int totalDays, Map<String, Integer> projectMap) {
     this.finishedToday = finishedToday;
     this.allTime = allTime;
     this.totalDays = totalDays;
