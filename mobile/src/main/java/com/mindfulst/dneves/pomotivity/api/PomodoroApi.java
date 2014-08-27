@@ -1,8 +1,10 @@
-package com.mindfulst.dneves.pomotivity;
+package com.mindfulst.dneves.pomotivity.api;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+
+import com.mindfulst.dneves.pomotivity.R;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -316,10 +318,6 @@ public class PomodoroApi {
 
   public PomodoroApi() {}
 
-  public Stats getStats() {
-    return mStats;
-  }
-
   public void save(Context context, SharedPreferences.Editor prefEditor) {
     DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
     prefEditor.putBoolean(context.getString(R.string.auto_start_key), mAutoStart);
@@ -360,10 +358,10 @@ public class PomodoroApi {
   /**
    * Starts the pomodoro timer.
    *
-   * @throws com.mindfulst.dneves.pomotivity.PomodoroApi.AlreadyRunningException if you call this
-   *                                                                             method while a
-   *                                                                             pomodoro is
-   *                                                                             running.
+   * @throws PomodoroApi.AlreadyRunningException if you call this
+   *                                             method while a
+   *                                             pomodoro is
+   *                                             running.
    */
   public synchronized void start() throws AlreadyRunningException {
     // We don't care if it stops after this point, only that you called it while it was logically
@@ -506,7 +504,7 @@ public class PomodoroApi {
   /**
    * Stops the current timer or does nothing if no timer is running.
    */
-  protected void stop() {
+  public void stop() {
     ScheduledFuture pomodoro = mCurrentPomodoro.getAndSet(null);
     if (pomodoro != null) {
       pomodoro.cancel(false);
@@ -519,8 +517,8 @@ public class PomodoroApi {
   /**
    * Pauses the current timer or does nothing if no timer is running.
    */
-  protected void pause() {
-    if (mIsPaused == true) {
+  public void pause() {
+    if (mIsPaused) {
       return;
     }
 
@@ -535,8 +533,8 @@ public class PomodoroApi {
   /**
    * Resumes the current timer or does nothing if no timer is running.
    */
-  protected void resume() {
-    if (mIsPaused == false) {
+  public void resume() {
+    if (!mIsPaused) {
       return;
     }
 

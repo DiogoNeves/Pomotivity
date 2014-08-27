@@ -1,5 +1,7 @@
 package com.mindfulst.dneves.pomotivity;
 
+import com.mindfulst.dneves.pomotivity.api.PomodoroApi;
+
 import junit.framework.TestCase;
 
 /**
