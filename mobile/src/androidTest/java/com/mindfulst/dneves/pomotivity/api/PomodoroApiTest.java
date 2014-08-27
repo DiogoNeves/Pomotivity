@@ -1,11 +1,9 @@
-package com.mindfulst.dneves.pomotivity;
-
-import com.mindfulst.dneves.pomotivity.api.PomodoroApi;
+package com.mindfulst.dneves.pomotivity.api;
 
 import junit.framework.TestCase;
 
 /**
- * Tests the PomodoroApi code.
+ * Tests the PomodoroApi class.
  */
 public class PomodoroApiTest extends TestCase {
   /**
@@ -14,9 +12,9 @@ public class PomodoroApiTest extends TestCase {
   public void testGetCurrentProjectGetsCurrentlySet() {
     PomodoroApi api = new PomodoroApi();
     api.setCurrentProject("test project");
-    assertEquals(api.getCurrentProject().toLowerCase(), "test project");
+    assertEquals("test project", api.getCurrentProject().toLowerCase());
     api.setCurrentProject("test project 2");
-    assertEquals(api.getCurrentProject().toLowerCase(), "test project 2");
+    assertEquals("test project 2", api.getCurrentProject().toLowerCase());
   }
 
   /**
