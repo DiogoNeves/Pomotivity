@@ -59,7 +59,7 @@ public final class Stats {
     this.finishedToday = preferences.getInt(context.getString(R.string.finished_today_key), 0);
     this.allTime = preferences.getInt(context.getString(R.string.all_time_key), 0);
     this.totalDays = preferences.getInt(context.getString(R.string.total_days_key), 0);
-    this.mProjectMap = parseProjectMap(preferences.getStringSet(context.getString(R.string.projects), null));
+    this.mProjectMap = parseProjectMap(preferences.getStringSet(context.getString(R.string.projects_key), null));
   }
 
   /**
@@ -137,7 +137,7 @@ public final class Stats {
     prefEditor.putInt(context.getString(R.string.finished_today_key), finishedToday)
               .putInt(context.getString(R.string.all_time_key), allTime)
               .putInt(context.getString(R.string.total_days_key), totalDays)
-              .putStringSet(context.getString(R.string.projects), getProjectMapAsSet());
+              .putStringSet(context.getString(R.string.projects_key), getProjectMapAsSet());
   }
 
   private Set<String> getProjectMapAsSet() {
