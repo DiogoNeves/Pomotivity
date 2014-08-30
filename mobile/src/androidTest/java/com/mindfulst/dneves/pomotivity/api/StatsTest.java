@@ -228,6 +228,79 @@ public class StatsTest extends InstrumentationTestCase {
   }
 
   /**
+   * Tests if incrementing really increments all counters (no project).
+   */
+  public void testIncrementCountersOnly() {
+    Stats stats = new Stats().incrementCounter(null);
+    assertEquals(1, stats.finishedToday);
+    assertEquals(1, stats.allTime);
+    assertEquals(0, stats.totalDays);
+    MoreAsserts.assertEmpty(stats.getProjects());
+
+    // From data
+    final Context context = getInstrumentation().getTargetContext();
+    SharedPreferences prefs = MockSharedPreferences.createWithTestData(context, null);
+    stats = new Stats(context, prefs).incrementCounter(null);
+    assertEquals(4, stats.finishedToday);
+    assertEquals(5, stats.allTime);
+    assertEquals(2, stats.totalDays);
+    MoreAsserts.assertEmpty(stats.getProjects());
+  }
+
+  /**
+   * Tests if incrementing with a project that wasn't yet added actually throws.
+   */
+  public void testIncrementWithInvalidProjectThrows() {
+//    try {
+//      new Stats().incrementCounter("Invalid");
+//      assertTrue("Incrementing the counter should've thrown an exception", false);
+//    }
+//    catch (NullPointerException ex) {
+//    }
+    new Stats().incrementCounter("Invalid");
+  }
+
+  /**
+   * Tests if incrementing really increments the project counter.
+   */
+  public void testIncrementProjectCounter() {
+    final String projectName = "Incrementor";
+    Stats stats = new Stats().addProject(projectName).incrementCounter(projectName);
+    assertEquals(1, stats.finishedToday);
+    assertEquals(1, stats.allTime);
+    assertEquals(0, stats.totalDays);
+    assertProject(stats, projectName, 1);
+    stats = stats.incrementCounter(projectName);
+    assertProject(stats, projectName, 2);
+
+    // From data
+    final Context context = getInstrumentation().getTargetContext();
+    SharedPreferences prefs = MockSharedPreferences.createWithTestData(context, projectName);
+    stats = new Stats(context, prefs).incrementCounter(projectName);
+    assertEquals(4, stats.finishedToday);
+    assertEquals(5, stats.allTime);
+    assertEquals(2, stats.totalDays);
+    assertProject(stats, projectName, 2);
+  }
+
+  /**
+   * Tests if incrementing really increments only one project in multiple projects.
+   */
+  public void testIncrementMultiProjectCounters() {
+    final String projectOne = "Incrementor 1";
+    final String projectTwo = "Incrementor 2";
+    Stats stats = new Stats().addProject(projectOne).addProject(projectTwo).incrementCounter(projectOne);
+    assertEquals(1, stats.finishedToday);
+    assertEquals(1, stats.allTime);
+    assertEquals(0, stats.totalDays);
+    assertEquals(1, (int) stats.getProjects().get(projectOne));
+    assertEquals(0, (int) stats.getProjects().get(projectTwo));
+    stats = stats.incrementCounter(projectTwo);
+    assertEquals(1, (int) stats.getProjects().get(projectOne));
+    assertEquals(1, (int) stats.getProjects().get(projectTwo));
+  }
+
+  /**
    * Tests against stats default values.
    *
    * @param stats Stats object to test.
