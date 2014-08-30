@@ -32,7 +32,7 @@ public final class Stats {
 
   /**
    * Attribute constructor.
-   *
+   * <p/>
    * This should be used internally only.
    * This class should only be constructed with default values, load constructor or by any of the methods.
    *
@@ -75,7 +75,7 @@ public final class Stats {
    * Adds a project name to the map.
    *
    * @param project Project name to add.
-   * @return A new stats object.
+   * @return A new stats object with the new project or the same Stats object if the project already exists.
    */
   protected Stats addProject(String project) {
     if (project == null || project.isEmpty()) {
@@ -89,9 +89,10 @@ public final class Stats {
   }
 
   /**
-   * Increments both finished today and all time.
+   * Increments finished today, all time and a project counters (if a project name is given).
    *
-   * @param currentProject Name of the current active project. This will increment its counter too.
+   * @param currentProject Name of a project or null. This will increment its counter too. You must call addProject
+   *                       first.
    * @return new Stats instance with the incremented counters.
    */
   protected Stats incrementCounter(String currentProject) {
@@ -100,8 +101,7 @@ public final class Stats {
     if (currentProject != null && !currentProject.isEmpty()) {
       // We need to copy because some code might use the previous Stats objects which should be immutable
       newProjectsMap = new HashMap<String, Integer>(mProjectMap);
-      newProjectsMap
-          .put(currentProject, newProjectsMap.containsKey(currentProject) ? newProjectsMap.get(currentProject) + 1 : 1);
+      newProjectsMap.put(currentProject, newProjectsMap.get(currentProject) + 1);
     }
     return new Stats(finishedToday + 1, allTime + 1, totalDays, newProjectsMap);
   }
