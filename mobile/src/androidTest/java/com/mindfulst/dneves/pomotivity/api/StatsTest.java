@@ -251,13 +251,12 @@ public class StatsTest extends InstrumentationTestCase {
    * Tests if incrementing with a project that wasn't yet added actually throws.
    */
   public void testIncrementWithInvalidProjectThrows() {
-//    try {
-//      new Stats().incrementCounter("Invalid");
-//      assertTrue("Incrementing the counter should've thrown an exception", false);
-//    }
-//    catch (NullPointerException ex) {
-//    }
-    new Stats().incrementCounter("Invalid");
+    try {
+      new Stats().incrementCounter("Invalid");
+      fail("Incrementing the counter should've thrown an exception");
+    }
+    catch (NullPointerException ex) {
+    }
   }
 
   /**
