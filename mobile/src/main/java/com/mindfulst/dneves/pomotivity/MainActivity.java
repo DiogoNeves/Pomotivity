@@ -23,6 +23,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewSwitcher;
 
+import com.mindfulst.dneves.pomotivity.api.PomodoroApi;
+
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -37,6 +39,20 @@ import java.util.Set;
  */
 public class MainActivity extends Activity {
   private static final String DEBUG_TAG = "pomoui";
+
+  /**
+   * A simple Singleton wrapper around the Api.
+   */
+  static class PomodoroApiWrapper extends PomodoroApi {
+    private static PomodoroApi mInstance = null;
+
+    public static PomodoroApi getOrCreate() {
+      if (mInstance == null) {
+        mInstance = new PomodoroApi();
+      }
+      return mInstance;
+    }
+  }
 
   private ViewSwitcher mSwitcher = null;
 
@@ -95,7 +111,7 @@ public class MainActivity extends Activity {
               projectChooser.setSelection(0);
             }
             else {
-              PomodoroApi.getInstance().setCurrentProject(newProjectName);
+              PomodoroApiWrapper.getOrCreate().setCurrentProject(newProjectName);
             }
           }
         }
@@ -116,7 +132,7 @@ public class MainActivity extends Activity {
 
     mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
-    final PomodoroApi api = PomodoroApi.getInstance();
+    final PomodoroApi api = PomodoroApiWrapper.getOrCreate();
     SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
     api.load(this, preferences);
 
@@ -182,7 +198,7 @@ public class MainActivity extends Activity {
           if (position != parent.getCount()) {
             // User Project
             String projectName = ((TextView) view).getText().toString();
-            PomodoroApi.getInstance().setCurrentProject(projectName);
+            PomodoroApiWrapper.getOrCreate().setCurrentProject(projectName);
             Log.d(DEBUG_TAG, String.format("Setting to current project to %s", projectName));
           }
         }
@@ -355,7 +371,7 @@ public class MainActivity extends Activity {
     super.onPause();
     SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = preferences.edit();
-    PomodoroApi.getInstance().save(this, editor);
+    PomodoroApiWrapper.getOrCreate().save(this, editor);
     editor.apply();
   }
 
@@ -364,7 +380,7 @@ public class MainActivity extends Activity {
     @Override
     public void onClick(View view) {
       try {
-        PomodoroApi.getInstance().start();
+        PomodoroApiWrapper.getOrCreate().start();
       }
       catch (PomodoroApi.AlreadyRunningException e) {
         e.printStackTrace();
@@ -376,7 +392,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onClick(View view) {
-      PomodoroApi.getInstance().stop();
+      PomodoroApiWrapper.getOrCreate().stop();
     }
   };
 
@@ -384,7 +400,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onClick(View view) {
-      PomodoroApi.getInstance().pause();
+      PomodoroApiWrapper.getOrCreate().pause();
     }
   };
 
@@ -392,14 +408,14 @@ public class MainActivity extends Activity {
 
     @Override
     public void onClick(View view) {
-      PomodoroApi.getInstance().resume();
+      PomodoroApiWrapper.getOrCreate().resume();
     }
   };
 
   CompoundButton.OnCheckedChangeListener mAutoStartToggleListener = new CompoundButton.OnCheckedChangeListener() {
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-      PomodoroApi.getInstance().setAutoStart(isChecked);
+      PomodoroApiWrapper.getOrCreate().setAutoStart(isChecked);
     }
   };
 }
