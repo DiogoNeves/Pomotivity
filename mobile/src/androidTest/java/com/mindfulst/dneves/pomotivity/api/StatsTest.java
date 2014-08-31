@@ -147,8 +147,7 @@ public class StatsTest extends InstrumentationTestCase {
    * Tests if resetting stats with default values returns the same values.
    */
   public void testResetTodayFromDefaultValues() {
-    Stats stats = new Stats();
-    stats.resetToday();
+    Stats stats = new Stats().resetToday();
     assertDefaultValues(stats);
   }
 
@@ -297,6 +296,31 @@ public class StatsTest extends InstrumentationTestCase {
     stats = stats.incrementCounter(projectTwo);
     assertEquals(1, (int) stats.getProjects().get(projectOne));
     assertEquals(1, (int) stats.getProjects().get(projectTwo));
+  }
+
+  /**
+   * Tests if incrementing the day with default values returns the same + 1 day.
+   */
+  public void testNextDayFromDefaultValues() {
+    Stats stats = new Stats().nextDay();
+    assertEquals(0, stats.finishedToday);
+    assertEquals(0, stats.allTime);
+    assertEquals(1, stats.totalDays);
+  }
+
+  /**
+   * Tests if incrementing the day with data returns the same + 1 day.
+   */
+  public void testNextDayWithData() {
+    final Context context = getInstrumentation().getTargetContext();
+    final String projectName = "Test Next Day";
+    SharedPreferences prefs = MockSharedPreferences.createWithTestData(context, projectName);
+
+    Stats stats = new Stats(context, prefs).nextDay();
+    assertEquals(0, stats.finishedToday);
+    assertEquals(4, stats.allTime);
+    assertEquals(3, stats.totalDays);
+    assertProject(stats, projectName, 1);
   }
 
   /**
