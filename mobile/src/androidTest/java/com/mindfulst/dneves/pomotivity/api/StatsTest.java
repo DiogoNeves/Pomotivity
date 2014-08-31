@@ -216,7 +216,7 @@ public class StatsTest extends InstrumentationTestCase {
     Stats stats = new Stats().addProject(projectOne).addProject(projectTwo);
 
     assertTrue(stats.getProjects().size() == 2);
-    MoreAsserts.assertEquals(stats.getProjects().keySet(), new HashSet<String>(Arrays.asList(projectOne, projectTwo)));
+    MoreAsserts.assertContentsInAnyOrder(stats.getProjects().keySet(), projectOne, projectTwo);
     assertEquals(0, (int) stats.getProjects().get(projectOne));
     assertEquals(0, (int) stats.getProjects().get(projectTwo));
 
@@ -325,7 +325,7 @@ public class StatsTest extends InstrumentationTestCase {
 
   /**
    * Tests the output of toString.
-   *
+   * <p/>
    * This is not an extensive test, used more as a warning that the output changed, not a contract enforcement ;)
    */
   public void testToString() {
@@ -336,6 +336,22 @@ public class StatsTest extends InstrumentationTestCase {
     Stats stats = new Stats(context, prefs);
     String expected = "PomodoroApi.Stats(finishedToday:3, allTime:4, totalDays:2, totalProjects:1)";
     assertEquals(expected, stats.toString());
+  }
+
+  public void testGetProjects() {
+    final String projectOne = "One";
+    final String projectTwo = "Two";
+    final String projectThree = "Three";
+
+    Stats stats = new Stats();
+    MoreAsserts.assertEmpty(stats.getProjects());
+    stats = stats.addProject(projectOne);
+    assertTrue(stats.getProjects().size() == 1);
+    stats = stats.addProject(projectTwo);
+    assertTrue(stats.getProjects().size() == 2);
+    stats = stats.addProject(projectThree);
+    assertTrue(stats.getProjects().size() == 3);
+    MoreAsserts.assertContentsInAnyOrder(stats.getProjects().keySet(), projectOne, projectTwo, projectThree);
   }
 
   /**
