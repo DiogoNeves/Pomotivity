@@ -324,6 +324,21 @@ public class StatsTest extends InstrumentationTestCase {
   }
 
   /**
+   * Tests the output of toString.
+   *
+   * This is not an extensive test, used more as a warning that the output changed, not a contract enforcement ;)
+   */
+  public void testToString() {
+    final Context context = getInstrumentation().getTargetContext();
+    final String projectName = "Test Next Day";
+    SharedPreferences prefs = MockSharedPreferences.createWithTestData(context, projectName);
+
+    Stats stats = new Stats(context, prefs);
+    String expected = "PomodoroApi.Stats(finishedToday:3, allTime:4, totalDays:2, totalProjects:1)";
+    assertEquals(expected, stats.toString());
+  }
+
+  /**
    * Tests against stats default values.
    *
    * @param stats Stats object to test.
