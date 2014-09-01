@@ -441,4 +441,8 @@ public class PomodoroApi {
   public void setPomodoroListener(PomodoroEventListener listener) {
     mListener = listener;
   }
+
+  public PomodoroEventListener getPomodoroListener() {
+    return mListener;
+  }
 }
