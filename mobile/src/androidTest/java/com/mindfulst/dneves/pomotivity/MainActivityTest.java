@@ -1,10 +1,15 @@
 package com.mindfulst.dneves.pomotivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Tests the MainActivity.
@@ -26,11 +31,19 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
   /**
    * Sets the test up.
    */
+  @SuppressLint("CommitPrefEdits")
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    mActivity = getActivity();
+
     mContext = getInstrumentation().getTargetContext();
+    SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = prefs.edit().clear();
+    editor.putStringSet(mContext.getString(R.string.projects_key),
+                        new HashSet<String>(Arrays.asList("Test Project 1,1")));
+    editor.commit();
+
+    mActivity = getActivity();
   }
 
   /**
