@@ -8,6 +8,8 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import com.mindfulst.dneves.pomotivity.api.PomodoroApi;
+
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -16,10 +18,14 @@ import java.util.HashSet;
  */
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-  private static final int INITIAL_PROJECT_ADAPTER_COUNT = 1;
+  private static final int    INITIAL_PROJECT_ADAPTER_COUNT = 1;
+  private static final String TEST_PROJECT_NAME             = "Test Project 1";
 
-  private Activity mActivity;
-  private Context  mContext;
+  private Activity    mActivity;
+  private Context     mContext;
+  private PomodoroApi mApi;
+
+  private Spinner mProjectSpinner;
 
   /**
    * Creates the default test.
@@ -37,13 +43,16 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     super.setUp();
 
     mContext = getInstrumentation().getTargetContext();
-    SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
+    SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = prefs.edit().clear();
     editor.putStringSet(mContext.getString(R.string.projects_key),
-                        new HashSet<String>(Arrays.asList("Test Project 1,1")));
+                        new HashSet<String>(Arrays.asList(TEST_PROJECT_NAME + ",1")));
     editor.commit();
 
     mActivity = getActivity();
+    mApi = MainActivity.PomodoroApiWrapper.getOrCreate();
+
+    mProjectSpinner = (Spinner) mActivity.findViewById(R.id.current_project);
   }
 
   /**
@@ -57,12 +66,27 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
    * Tests if the Project Spinner was properly setup.
    */
   public void testProjectSpinnerPreConditions() {
-    Spinner projectsChooser = (Spinner) mActivity.findViewById(R.id.current_project);
-    assertNotNull(projectsChooser.getOnItemSelectedListener());
+    assertNotNull(mProjectSpinner.getOnItemSelectedListener());
 
-    SpinnerAdapter projectAdapter = projectsChooser.getAdapter();
+    SpinnerAdapter projectAdapter = mProjectSpinner.getAdapter();
     assertEquals(MainActivity.PomodoroApiWrapper.getOrCreate().getAllProjects().size() + INITIAL_PROJECT_ADAPTER_COUNT,
                  projectAdapter.getCount());
+    assertEquals(TEST_PROJECT_NAME, projectAdapter.getItem(0));
     assertEquals(mContext.getString(R.string.project_add), projectAdapter.getItem(projectAdapter.getCount() - 1));
+  }
+
+  /**
+   * Tests selecting the test project sets it as current.
+   */
+  public void testProjectSelectionSetsCurrent() throws InterruptedException {
+    getInstrumentation().runOnMainSync(new Runnable() {
+      @Override
+      public void run() {
+        assertTrue(mProjectSpinner.requestFocus());
+        mProjectSpinner.setSelection(0, false);
+      }
+    });
+    getInstrumentation().waitForIdleSync();
+    assertEquals(TEST_PROJECT_NAME, mApi.getCurrentProject());
   }
 }
