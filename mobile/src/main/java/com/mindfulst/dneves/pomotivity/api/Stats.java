@@ -155,8 +155,12 @@ public final class Stats {
 
     HashMap<String, Integer> projectMap = new HashMap<String, Integer>(projectSet.size());
     for (String projectInfo : projectSet) {
-      String[] projectValues = projectInfo.split(",");
-      projectMap.put(projectValues[0], Integer.parseInt(projectValues[1]));
+      int separator = projectInfo.lastIndexOf(",");
+      if (separator >= 0) {
+        String projectName = projectInfo.substring(0, separator);
+        String projectValue = projectInfo.substring(separator + 1);
+        projectMap.put(projectName, Integer.parseInt(projectValue));
+      }
     }
     return projectMap;
   }

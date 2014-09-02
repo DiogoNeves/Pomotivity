@@ -280,6 +280,28 @@ public class StatsTest extends InstrumentationTestCase {
   }
 
   /**
+   * Tests if saving a project with a comma works.
+   */
+  public void testSaveProjecWithComma() {
+    final String projectName = "Project,X";
+    Stats stats = new Stats();
+    stats = stats.addProject(projectName);
+
+    final Context context = getInstrumentation().getTargetContext();
+    SharedPreferences prefs = MockSharedPreferences.createEmpty();
+    MockSharedPreferences.MockEditor editor = (MockSharedPreferences.MockEditor) prefs.edit();
+    stats.save(context, editor);
+    editor.apply();
+
+    Stats loaded = new Stats(context, prefs);
+    assertEquals(0, loaded.finishedToday);
+    assertEquals(0, loaded.allTime);
+    assertEquals(0, loaded.totalDays);
+    assertTrue(loaded.getProjects().size() == 1);
+    MoreAsserts.assertEquals(stats.getProjects().entrySet(), loaded.getProjects().entrySet());
+  }
+
+  /**
    * Tests against stats default values.
    *
    * @param stats Stats object to test.
