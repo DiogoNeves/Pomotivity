@@ -31,7 +31,11 @@ Feel free to help ;)
 ### Contribution guidelines ###
 
 * Writing tests
+* * For any user interaction simulation, use the Espresso library
+* * If you're testing specific data layouts, keep using the normal android APIs (e.g. Spinner adapter has string X at exactly position 0) - Open to discussion on this
 * Code review
+* * Work on your on fork (or feature branch if you have access to the main repo) and request a review via a Pull Request
+* * If a Pull Request for the changes you're working on already exists, please update instead of creating a new one
 * Other guidelines
 
 ### Third Party ###
@@ -39,6 +43,7 @@ Feel free to help ;)
 * Joda-Time (http://www.joda.org/joda-time/)
 * Loopable Ticking Clock (https://www.freesound.org/people/OwlStorm/sounds/212181/) (**License** http://creativecommons.org/licenses/by/3.0/legalcode)
 * (altered) Alarm Clock Sound Effect (http://www.soundjay.com/clock-sounds-1.html)
+* Espresso Test Kit (https://code.google.com/p/android-test-kit/) (**License** http://www.apache.org/licenses/LICENSE-2.0)
 
 ### Who do I talk to? ###
 
