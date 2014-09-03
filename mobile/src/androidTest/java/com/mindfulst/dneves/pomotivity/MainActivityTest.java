@@ -13,6 +13,14 @@ import com.mindfulst.dneves.pomotivity.api.PomodoroApi;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+
 /**
  * Tests the MainActivity.
  */
@@ -69,8 +77,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     assertNotNull(mProjectSpinner.getOnItemSelectedListener());
 
     SpinnerAdapter projectAdapter = mProjectSpinner.getAdapter();
-    assertEquals(MainActivity.PomodoroApiWrapper.getOrCreate().getAllProjects().size() + INITIAL_PROJECT_ADAPTER_COUNT,
-                 projectAdapter.getCount());
+    assertEquals(mApi.getAllProjects().size() + INITIAL_PROJECT_ADAPTER_COUNT, projectAdapter.getCount());
     assertEquals(TEST_PROJECT_NAME, projectAdapter.getItem(0));
     assertEquals(mContext.getString(R.string.project_add), projectAdapter.getItem(projectAdapter.getCount() - 1));
   }
@@ -78,15 +85,9 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
   /**
    * Tests selecting the test project sets it as current.
    */
-  public void testProjectSelectionSetsCurrent() throws InterruptedException {
-    getInstrumentation().runOnMainSync(new Runnable() {
-      @Override
-      public void run() {
-        assertTrue(mProjectSpinner.requestFocus());
-        mProjectSpinner.setSelection(0, false);
-      }
-    });
-    getInstrumentation().waitForIdleSync();
+  public void testProjectSelectionSetsCurrent() {
+    onView(withId(R.id.current_project)).perform(click());
+    onData(allOf(is(instanceOf(String.class)), is(TEST_PROJECT_NAME))).perform(click());
     assertEquals(TEST_PROJECT_NAME, mApi.getCurrentProject());
   }
 }
