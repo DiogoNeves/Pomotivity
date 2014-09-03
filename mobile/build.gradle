@@ -10,6 +10,7 @@ android {
         targetSdkVersion 20
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
     }
     buildTypes {
         release {
@@ -26,4 +27,5 @@ dependencies {
     // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v4:20.0.0'
     compile 'joda-time:joda-time:2.1'
+    androidTestCompile files('libs/espresso-1.1-bundled.jar')
 }
