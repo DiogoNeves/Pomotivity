@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -24,7 +25,7 @@ import static org.hamcrest.Matchers.is;
 /**
  * Tests the MainActivity.
  */
-public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
+public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
   private static final int    INITIAL_PROJECT_ADAPTER_COUNT = 1;
   private static final String TEST_PROJECT_NAME             = "Test Project 1";
@@ -38,12 +39,14 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
   /**
    * Creates the default test.
    */
-  public MainActivityTest() {
+  public MainActivityPortraitTest() {
     super(MainActivity.class);
   }
 
   /**
    * Sets the test up.
+   *
+   * @throws Exception
    */
   @SuppressLint("CommitPrefEdits")
   @Override
@@ -68,6 +71,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
    */
   public void testPreConditions() {
     assertNotNull(MainActivity.PomodoroApiWrapper.getOrCreate().getPomodoroListener());
+    assertEquals(Configuration.ORIENTATION_PORTRAIT, mActivity.getResources().getConfiguration().orientation);
   }
 
   /**
