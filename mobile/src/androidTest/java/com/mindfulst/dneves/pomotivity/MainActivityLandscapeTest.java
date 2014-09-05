@@ -12,8 +12,10 @@ import com.mindfulst.dneves.pomotivity.api.PomodoroApi;
  * Tests the (@link MainActivity) in Landscape mode.
  */
 public class MainActivityLandscapeTest extends ActivityInstrumentationTestCase2<MainActivity> {
-  private Activity    mActivity;
-  private PomodoroApi mApi;
+  private Activity mActivity;
+
+  private PomodoroApi                       mApi;
+  private PomodoroApi.PomodoroEventListener mOriginalListener;
 
   /**
    * Default Constructor.
@@ -32,21 +34,23 @@ public class MainActivityLandscapeTest extends ActivityInstrumentationTestCase2<
     super.setUp();
 
     Activity activity = getActivity();
+    mApi = MainActivity.PomodoroApiWrapper.getOrCreate();
+    mOriginalListener = mApi.getPomodoroListener();
+
     activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     Instrumentation.ActivityMonitor monitor =
         new Instrumentation.ActivityMonitor(MainActivity.class.getName(), null, false);
     getInstrumentation().addMonitor(monitor);
     getInstrumentation().waitForIdleSync();
     mActivity = getInstrumentation().waitForMonitor(monitor);
-
-    mApi = MainActivity.PomodoroApiWrapper.getOrCreate();
   }
 
   /**
    * Tests if the Activity was properly setup.
    */
   public void testPreConditions() {
-    assertNotNull(MainActivity.PomodoroApiWrapper.getOrCreate().getPomodoroListener());
+    assertNotNull(mApi.getPomodoroListener());
+    assertNotSame(mOriginalListener, mApi.getPomodoroListener());
     assertEquals(Configuration.ORIENTATION_LANDSCAPE, mActivity.getResources().getConfiguration().orientation);
   }
 }
