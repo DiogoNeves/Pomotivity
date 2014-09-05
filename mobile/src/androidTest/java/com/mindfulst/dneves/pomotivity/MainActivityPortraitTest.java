@@ -70,7 +70,7 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    * Tests if the Activity was properly setup.
    */
   public void testPreConditions() {
-    assertNotNull(MainActivity.PomodoroApiWrapper.getOrCreate().getPomodoroListener());
+    assertNotNull(mApi.getPomodoroListener());
     assertEquals(Configuration.ORIENTATION_PORTRAIT, mActivity.getResources().getConfiguration().orientation);
   }
 
