@@ -17,6 +17,9 @@ import java.util.HashSet;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.doesNotExist;
+import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
@@ -70,8 +73,15 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    * Tests if the Activity was properly setup.
    */
   public void testPreConditions() {
+    assertEquals(mApi, MainActivity.PomodoroApiWrapper.getOrCreate());
     assertNotNull(mApi.getPomodoroListener());
+    assertFalse(mApi.isRunning());
     assertEquals(Configuration.ORIENTATION_PORTRAIT, mActivity.getResources().getConfiguration().orientation);
+
+    onView(withId(R.id.start_button)).check(matches(isDisplayed()));
+    onView(withId(R.id.pause_button)).check(doesNotExist());
+    onView(withId(R.id.stop_button)).check(doesNotExist());
+    onView(withId(R.id.resume_button)).check(doesNotExist());
   }
 
   /**
@@ -93,5 +103,25 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
     onView(withId(R.id.current_project)).perform(click());
     onData(allOf(is(instanceOf(String.class)), is(TEST_PROJECT_NAME))).perform(click());
     assertEquals(TEST_PROJECT_NAME, mApi.getCurrentProject());
+  }
+
+  /**
+   * Tests pressing start actually starts the pomodoro and shows the right buttons.
+   */
+  public void testPressingStart() {
+    onView(withId(R.id.start_button)).perform(click());
+    onView(withId(R.id.pause_button)).check(matches(isDisplayed()));
+    assertTrue(mApi.isRunning());
+  }
+
+  /**
+   * Tests pressing pause pauses it.
+   */
+  public void testPressingPause() {
+    onView(withId(R.id.start_button)).perform(click());
+    onView(withId(R.id.pause_button)).perform(click());
+    onView(withId(R.id.stop_button)).check(matches(isDisplayed()));
+    onView(withId(R.id.resume_button)).check(matches(isDisplayed()));
+    assertTrue(mApi.isPaused());
   }
 }

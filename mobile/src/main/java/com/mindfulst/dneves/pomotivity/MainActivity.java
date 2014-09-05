@@ -133,8 +133,10 @@ public class MainActivity extends Activity {
     mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
     final PomodoroApi api = PomodoroApiWrapper.getOrCreate();
-    SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-    api.load(this, preferences);
+    if (!api.isRunning()) {
+      SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+      api.load(this, preferences);
+    }
 
     // We need 2 channels, 1 for the tick the other for the end alarm
     if (mPlayer == null) {
@@ -175,7 +177,7 @@ public class MainActivity extends Activity {
 
     Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
     projectChooser.setAdapter(mProjectAdapter);
-    projectChooser.setSelection(mProjectAdapter.getCount());
+    projectChooser.setSelection(mProjectAdapter.getCount(), false);
     final String currentProject = api.getCurrentProject();
     if (currentProject != null && !currentProject.isEmpty()) {
       setProjectTo(currentProject);

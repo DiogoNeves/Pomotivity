@@ -397,6 +397,20 @@ public class PomodoroApi {
   }
 
   /**
+   * Returns true if the pomodoro is currently running.
+   */
+  public boolean isRunning() {
+    return !(mCurrentState.get() == PomodoroState.NONE || mIsPaused);
+  }
+
+  /**
+   * Returns true if the pomodoro is paused.
+   */
+  public boolean isPaused() {
+    return mCurrentState.get() != PomodoroState.NONE && mIsPaused;
+  }
+
+  /**
    * Sets the auto start flag.
    * If set to true, when a pomodoro finishes, another one will start immediately.
    *
