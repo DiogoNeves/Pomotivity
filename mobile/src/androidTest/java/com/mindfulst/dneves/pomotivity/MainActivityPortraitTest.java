@@ -9,6 +9,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers;
 import com.mindfulst.dneves.pomotivity.api.PomodoroApi;
 
 import java.util.Arrays;
@@ -17,9 +18,9 @@ import java.util.HashSet;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.doesNotExist;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
@@ -29,7 +30,6 @@ import static org.hamcrest.Matchers.is;
  * Tests the MainActivity.
  */
 public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<MainActivity> {
-
   private static final int    INITIAL_PROJECT_ADAPTER_COUNT = 1;
   private static final String TEST_PROJECT_NAME             = "Test Project 1";
 
@@ -70,6 +70,16 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
   }
 
   /**
+   * Tears down the test.
+   * Stops any running pomodoro.
+   */
+  @Override
+  protected void tearDown() throws Exception {
+    mApi.stop();
+    super.tearDown();
+  }
+
+  /**
    * Tests if the Activity was properly setup.
    */
   public void testPreConditions() {
@@ -79,9 +89,9 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
     assertEquals(Configuration.ORIENTATION_PORTRAIT, mActivity.getResources().getConfiguration().orientation);
 
     onView(withId(R.id.start_button)).check(matches(isDisplayed()));
-    onView(withId(R.id.pause_button)).check(doesNotExist());
-    onView(withId(R.id.stop_button)).check(doesNotExist());
-    onView(withId(R.id.resume_button)).check(doesNotExist());
+    onView(withId(R.id.pause_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    onView(withId(R.id.stop_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    onView(withId(R.id.resume_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
   }
 
   /**
@@ -110,7 +120,10 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testPressingStart() {
     onView(withId(R.id.start_button)).perform(click());
+    onView(withId(R.id.start_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     onView(withId(R.id.pause_button)).check(matches(isDisplayed()));
+    onView(withId(R.id.stop_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    onView(withId(R.id.resume_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     assertTrue(mApi.isRunning());
   }
 
@@ -120,6 +133,8 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
   public void testPressingPause() {
     onView(withId(R.id.start_button)).perform(click());
     onView(withId(R.id.pause_button)).perform(click());
+    onView(withId(R.id.start_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    onView(withId(R.id.pause_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     onView(withId(R.id.stop_button)).check(matches(isDisplayed()));
     onView(withId(R.id.resume_button)).check(matches(isDisplayed()));
     assertTrue(mApi.isPaused());
