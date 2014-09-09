@@ -291,8 +291,8 @@ public class PomodoroApi {
     mIsPaused = false;
     mCurrentState.set(PomodoroState.POMODORO);
     mCurrentTime.set(POMODORO_DURATION);
-    mCurrentPomodoro.set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
     notifyListener(ListenerAction.START, POMODORO_DURATION, mCurrentState.get());
+    mCurrentPomodoro.set(mExecutionService.scheduleAtFixedRate(pomodoroTick, 1, 1, TimeUnit.SECONDS));
   }
 
   private void notifyListener(ListenerAction action, int currentTime, PomodoroState state) {
