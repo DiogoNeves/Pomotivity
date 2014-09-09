@@ -70,6 +70,7 @@
             android:id="@+id/current_project"
             android:layout_marginTop="@dimen/current_project_margin_top"
             android:spinnerMode="dropdown"
+            android:saveEnabled="false"
             android:prompt="@string/project_hint"/>
     </RelativeLayout>
 

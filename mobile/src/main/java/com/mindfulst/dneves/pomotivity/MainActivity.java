@@ -176,32 +176,33 @@ public class MainActivity extends Activity {
     mAddProjectDialog = createProjectDialog();
 
     Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
-    projectChooser.setAdapter(mProjectAdapter);
-    projectChooser.setSelection(mProjectAdapter.getCount(), false);
-    final String currentProject = api.getCurrentProject();
-    if (currentProject != null && !currentProject.isEmpty()) {
-      setProjectTo(currentProject);
-    }
     projectChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       // We're going to set selection after this, no problem
-      private int lastSelection = 0;
+      private int lastSelection = -1;
 
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if (position == parent.getCount() - 1) {
-          // + Project
-          Log.d(DEBUG_TAG, "Adding project");
-          mAddProjectDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-          parent.setSelection(lastSelection);
-          mAddProjectDialog.show();
+        if (lastSelection == -1) {
+          // We don't have access to the getCount until the first time we run, this says the lastSelection == hint
+          // This also means we're running on the first item select, ignore it.
+          lastSelection = parent.getCount();
         }
-        else if (lastSelection != position) {
-          lastSelection = position;
-          if (position != parent.getCount()) {
-            // User Project
-            String projectName = ((TextView) view).getText().toString();
-            PomodoroApiWrapper.getOrCreate().setCurrentProject(projectName);
-            Log.d(DEBUG_TAG, String.format("Setting to current project to %s", projectName));
+        else {
+          if (position == parent.getCount() - 1) {
+            // + Project
+            Log.d(DEBUG_TAG, "Adding project");
+            mAddProjectDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            parent.setSelection(lastSelection);
+            mAddProjectDialog.show();
+          }
+          else if (lastSelection != position) {
+            lastSelection = position;
+            if (position != parent.getCount()) {
+              // User Project
+              String projectName = ((TextView) view).getText().toString();
+              PomodoroApiWrapper.getOrCreate().setCurrentProject(projectName);
+              Log.d(DEBUG_TAG, String.format("Setting to current project to %s", projectName));
+            }
           }
         }
       }
@@ -210,6 +211,12 @@ public class MainActivity extends Activity {
       public void onNothingSelected(AdapterView<?> parent) {
       }
     });
+    projectChooser.setAdapter(mProjectAdapter);
+    projectChooser.setSelection(mProjectAdapter.getCount(), false);
+    final String currentProject = api.getCurrentProject();
+    if (currentProject != null && !currentProject.isEmpty()) {
+      setProjectTo(currentProject);
+    }
 
     findViewById(R.id.start_button).setOnClickListener(mStartButtonListener);
     findViewById(R.id.stop_button).setOnClickListener(mStopButtonListener);
