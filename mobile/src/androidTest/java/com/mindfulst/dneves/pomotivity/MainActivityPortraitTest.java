@@ -18,13 +18,17 @@ import java.util.HashSet;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeTextIntoFocusedView;
+import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.doesNotExist;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.hasFocus;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
 
 /**
  * Tests the MainActivity.
@@ -32,6 +36,7 @@ import static org.hamcrest.Matchers.is;
 public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<MainActivity> {
   private static final int    INITIAL_PROJECT_ADAPTER_COUNT = 1;
   private static final String TEST_PROJECT_NAME             = "Test Project 1";
+  private static final String TEST_ADD_PROJECT_NAME         = "Test Project 2";
 
   private Activity    mActivity;
   private Context     mContext;
@@ -99,11 +104,7 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testProjectSpinnerPreConditions() {
     assertNotNull(mProjectSpinner.getOnItemSelectedListener());
-
-    SpinnerAdapter projectAdapter = mProjectSpinner.getAdapter();
-    assertEquals(mApi.getAllProjects().size() + INITIAL_PROJECT_ADAPTER_COUNT, projectAdapter.getCount());
-    assertEquals(TEST_PROJECT_NAME, projectAdapter.getItem(0));
-    assertEquals(mContext.getString(R.string.project_add), projectAdapter.getItem(projectAdapter.getCount() - 1));
+    assertProjects(new String[]{TEST_PROJECT_NAME});
   }
 
   /**
@@ -111,7 +112,7 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testProjectSelectionSetsCurrent() {
     onView(withId(R.id.current_project)).perform(click());
-    onData(allOf(is(instanceOf(String.class)), is(TEST_PROJECT_NAME))).perform(click());
+    onData(hasToString(equalTo(TEST_PROJECT_NAME))).perform(click());
     assertEquals(TEST_PROJECT_NAME, mApi.getCurrentProject());
   }
 
@@ -138,5 +139,63 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
     onView(withId(R.id.stop_button)).check(matches(isDisplayed()));
     onView(withId(R.id.resume_button)).check(matches(isDisplayed()));
     assertTrue(mApi.isPaused());
+  }
+
+  /**
+   * Tests if pressing + Project shows the dialog.
+   */
+  public void testAddProjectDialog() {
+    selectAddProject();
+    onView(withText(R.string.project_dialog_title)).check(matches(isDisplayed()));
+    // Cancel
+    onView(withId(android.R.id.button2)).perform(click());
+    onView(withText(R.string.project_dialog_title)).check(doesNotExist());
+  }
+
+  /**
+   * Tests if actually adding something to the dialog sets it as current project.
+   */
+  public void testAddProjectDialogWithValue() {
+    selectAddProject();
+    // TODO: Broken
+    onView(hasFocus()).perform(typeText(TEST_ADD_PROJECT_NAME));
+    // OK
+    onView(withId(android.R.id.button1)).perform(click());
+    assertProjects(new String[]{TEST_ADD_PROJECT_NAME, TEST_PROJECT_NAME});
+  }
+
+  /**
+   * Tests if adding a project that already exists doesn't change the spinner contents.
+   */
+  public void testAddExistingProjectDoesntChange() {
+    selectAddProject();
+    // TODO: Broken
+    onView(hasFocus()).perform(typeTextIntoFocusedView(TEST_PROJECT_NAME));
+    // OK
+    onView(withId(android.R.id.button1)).perform(click());
+    assertProjects(new String[]{TEST_PROJECT_NAME});
+  }
+
+  /**
+   * Selects the + Project option in the project spinner.
+   */
+  private void selectAddProject() {
+    onView(withId(R.id.current_project)).perform(click());
+    onData(hasToString(equalTo(mContext.getString(R.string.project_add)))).perform(click());
+  }
+
+  /**
+   * Asserts the spinner contains the same projects as the given array (in order).
+   *
+   * @param projects Projects to assert.
+   */
+  private void assertProjects(final String[] projects) {
+    SpinnerAdapter projectAdapter = mProjectSpinner.getAdapter();
+    assertEquals(projects.length, mApi.getAllProjects().size());
+    assertEquals(mApi.getAllProjects().size() + INITIAL_PROJECT_ADAPTER_COUNT, projectAdapter.getCount());
+    for (int i = 0; i < projects.length; ++i) {
+      assertEquals(projects[i], projectAdapter.getItem(i));
+    }
+    assertEquals(mContext.getString(R.string.project_add), projectAdapter.getItem(projectAdapter.getCount() - 1));
   }
 }

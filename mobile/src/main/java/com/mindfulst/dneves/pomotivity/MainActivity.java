@@ -79,6 +79,10 @@ public class MainActivity extends Activity {
     }
   }
 
+  /**
+   * Creates a new Project Add prompt dialogue.
+   * @return A new AlertDialog with the Add Project view.
+   */
   private AlertDialog createProjectDialog() {
     AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
