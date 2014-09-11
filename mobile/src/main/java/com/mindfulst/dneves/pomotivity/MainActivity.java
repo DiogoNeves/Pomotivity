@@ -2,6 +2,8 @@ package com.mindfulst.dneves.pomotivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -40,6 +42,39 @@ import java.util.Set;
 public class MainActivity extends Activity {
   private static final String DEBUG_TAG = "pomoui";
 
+  public static class AddProjectDialogFragment extends DialogFragment {
+
+    public static AddProjectDialogFragment newInstance() {
+      return new AddProjectDialogFragment();
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+      final EditText input = new EditText(getActivity());
+      input.setId(R.id.project_name_box);
+      input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+      input.setHint(R.string.project_dialog_hint);
+
+      AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+      alert.setTitle(R.string.project_dialog_title);
+      alert.setView(input);
+      alert.setPositiveButton(R.string.project_dialog_ok, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+          String newProjectName = input.getText().toString();
+          input.setText("");
+          ((MainActivity) getActivity()).onAddProjectOk(newProjectName);
+        }
+      });
+      alert.setNegativeButton(R.string.project_dialog_cancel, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+        }
+      });
+      Dialog dialog = alert.create();
+      dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+      return dialog;
+    }
+  }
+
   /**
    * A simple Singleton wrapper around the Api.
    */
@@ -58,7 +93,6 @@ public class MainActivity extends Activity {
 
   private Set<String>          mProjectSet       = null;
   private ArrayAdapter<String> mProjectAdapter   = null;
-  private AlertDialog          mAddProjectDialog = null;
 
   private SoundPool mPlayer = null;
 
@@ -81,52 +115,12 @@ public class MainActivity extends Activity {
 
   /**
    * Creates a new Project Add prompt dialogue.
+   *
    * @return A new AlertDialog with the Add Project view.
    */
-  private AlertDialog createProjectDialog() {
-    AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-    alert.setTitle(R.string.project_dialog_title);
-    final EditText input = new EditText(this);
-    input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-    input.setHint(R.string.project_dialog_hint);
-    alert.setView(input);
-
-    alert.setPositiveButton(R.string.project_dialog_ok, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int whichButton) {
-        String newProjectName = input.getText().toString();
-        input.setText("");
-        if (newProjectName != null && !newProjectName.isEmpty()) {
-          if (newProjectName.equalsIgnoreCase(getResources().getString(R.string.project_add))) {
-            String message = String.format(getResources().getString(R.string.project_reserved_warning), newProjectName);
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-          }
-          else if (mProjectSet.contains(newProjectName.toLowerCase())) {
-            // Somewhere in the list already, find it and select
-            setProjectTo(newProjectName);
-          }
-          else {
-            // New project, add it
-            mProjectSet.add(newProjectName.toLowerCase());
-            mProjectAdapter.insert(newProjectName, 0);
-            mProjectAdapter.notifyDataSetChanged();
-            Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
-            if (projectChooser.getSelectedItemPosition() != 0) {
-              projectChooser.setSelection(0);
-            }
-            else {
-              PomodoroApiWrapper.getOrCreate().setCurrentProject(newProjectName);
-            }
-          }
-        }
-      }
-    });
-
-    alert.setNegativeButton(R.string.project_dialog_cancel, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int whichButton) {
-      }
-    });
-    return alert.create();
+  private void showProjectDialog() {
+    DialogFragment addProjectDialog = AddProjectDialogFragment.newInstance();
+    addProjectDialog.show(getFragmentManager(), "add_project_dialog");
   }
 
   @Override
@@ -136,9 +130,9 @@ public class MainActivity extends Activity {
 
     mSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 
+    SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
     final PomodoroApi api = PomodoroApiWrapper.getOrCreate();
     if (!api.isRunning()) {
-      SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
       api.load(this, preferences);
     }
 
@@ -177,7 +171,6 @@ public class MainActivity extends Activity {
     // Always keep both of this last ;)
     mProjectAdapter.add(getResources().getString(R.string.project_add));
     mProjectAdapter.add(getResources().getString(R.string.project_hint));
-    mAddProjectDialog = createProjectDialog();
 
     Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
     projectChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -195,9 +188,8 @@ public class MainActivity extends Activity {
           if (position == parent.getCount() - 1) {
             // + Project
             Log.d(DEBUG_TAG, "Adding project");
-            mAddProjectDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            showProjectDialog();
             parent.setSelection(lastSelection);
-            mAddProjectDialog.show();
           }
           else if (lastSelection != position) {
             lastSelection = position;
@@ -431,4 +423,30 @@ public class MainActivity extends Activity {
       PomodoroApiWrapper.getOrCreate().setAutoStart(isChecked);
     }
   };
+
+  public void onAddProjectOk(String projectName) {
+    if (projectName != null && !projectName.isEmpty()) {
+      if (projectName.equalsIgnoreCase(getResources().getString(R.string.project_add))) {
+        String message = String.format(getResources().getString(R.string.project_reserved_warning), projectName);
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+      }
+      else if (mProjectSet.contains(projectName.toLowerCase())) {
+        // Somewhere in the list already, find it and select
+        setProjectTo(projectName);
+      }
+      else {
+        // New project, add it
+        mProjectSet.add(projectName.toLowerCase());
+        mProjectAdapter.insert(projectName, 0);
+        mProjectAdapter.notifyDataSetChanged();
+        Spinner projectChooser = (Spinner) findViewById(R.id.current_project);
+        if (projectChooser.getSelectedItemPosition() != 0) {
+          projectChooser.setSelection(0);
+        }
+        else {
+          PomodoroApiWrapper.getOrCreate().setCurrentProject(projectName);
+        }
+      }
+    }
+  }
 }

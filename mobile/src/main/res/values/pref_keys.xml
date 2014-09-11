@@ -7,4 +7,6 @@
     <string name="auto_start_key">auto_start</string>
     <string name="projects_key">projects</string>
     <string name="current_project">current_project</string>
+    <string name="showing_dialog_key">showing_dialog</string>
+    <string name="project_name_key">project_name_key</string>
 </resources>

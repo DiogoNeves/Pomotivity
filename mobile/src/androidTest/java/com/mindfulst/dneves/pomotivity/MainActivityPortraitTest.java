@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Spinner;
@@ -158,7 +159,7 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testAddProjectDialogWithValue() {
     selectAddProject();
-    onView(allOf(withText(""), hasFocus())).perform(typeText(TEST_ADD_PROJECT_NAME));
+    onView(withId(R.id.project_name_box)).perform(typeText(TEST_ADD_PROJECT_NAME));
     // OK
     onView(withId(android.R.id.button1)).perform(click());
     assertProjects(new String[]{TEST_ADD_PROJECT_NAME, TEST_PROJECT_NAME});
@@ -169,10 +170,30 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testAddExistingProjectDoesntChange() {
     selectAddProject();
-    onView(allOf(withText(""), hasFocus())).perform(typeText(TEST_PROJECT_NAME));
+    onView(withId(R.id.project_name_box)).perform(typeText(TEST_PROJECT_NAME));
     // OK
     onView(withId(android.R.id.button1)).perform(click());
     assertProjects(new String[]{TEST_PROJECT_NAME});
+  }
+
+  /**
+   * Tests if rotating while showing the add project dialog doesn't crash and shows the dialog again.
+   */
+  public void testRotatingWhileShowingDialogue() {
+    selectAddProject();
+    mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    getInstrumentation().waitForIdleSync();
+    onView(withText(R.string.project_dialog_title)).check(matches(isDisplayed()));
+    // Cancel
+    // TODO: Broken
+    onView(withId(android.R.id.button2)).perform(click());
+    onView(withText(R.string.project_dialog_title)).check(doesNotExist());
+  }
+
+  /**
+   * Tests if typeing a project name and rotating keeps the project name there.
+   */
+  public void testTypingProjectAndRotate() {
   }
 
   /**
