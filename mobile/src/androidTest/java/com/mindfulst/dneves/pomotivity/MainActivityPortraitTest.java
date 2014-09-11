@@ -27,6 +27,7 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 
@@ -157,8 +158,7 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testAddProjectDialogWithValue() {
     selectAddProject();
-    // TODO: Broken
-    onView(hasFocus()).perform(typeText(TEST_ADD_PROJECT_NAME));
+    onView(allOf(withText(""), hasFocus())).perform(typeText(TEST_ADD_PROJECT_NAME));
     // OK
     onView(withId(android.R.id.button1)).perform(click());
     assertProjects(new String[]{TEST_ADD_PROJECT_NAME, TEST_PROJECT_NAME});
@@ -169,8 +169,7 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testAddExistingProjectDoesntChange() {
     selectAddProject();
-    // TODO: Broken
-    onView(hasFocus()).perform(typeTextIntoFocusedView(TEST_PROJECT_NAME));
+    onView(allOf(withText(""), hasFocus())).perform(typeText(TEST_PROJECT_NAME));
     // OK
     onView(withId(android.R.id.button1)).perform(click());
     assertProjects(new String[]{TEST_PROJECT_NAME});
