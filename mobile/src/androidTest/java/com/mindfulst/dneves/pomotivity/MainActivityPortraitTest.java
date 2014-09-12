@@ -2,6 +2,7 @@ package com.mindfulst.dneves.pomotivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -102,6 +103,24 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
   }
 
   /**
+   * Tests if the Activity was properly setup after rotating.
+   */
+  public void testLandscapePreConditions() {
+    PomodoroApi.PomodoroEventListener originalListener = mApi.getPomodoroListener();
+    mActivity = rotateToLandscape();
+    assertEquals(mApi, MainActivity.PomodoroApiWrapper.getOrCreate());
+    assertNotNull(mApi.getPomodoroListener());
+    assertNotSame(originalListener, mApi.getPomodoroListener());
+    assertFalse(mApi.isRunning());
+    assertEquals(Configuration.ORIENTATION_LANDSCAPE, mActivity.getResources().getConfiguration().orientation);
+
+    onView(withId(R.id.start_button)).check(matches(isDisplayed()));
+    onView(withId(R.id.pause_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    onView(withId(R.id.stop_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    onView(withId(R.id.resume_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+  }
+
+  /**
    * Tests if the Project Spinner was properly setup.
    */
   public void testProjectSpinnerPreConditions() {
@@ -181,11 +200,9 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
    */
   public void testRotatingWhileShowingDialogue() {
     selectAddProject();
-    mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    getInstrumentation().waitForIdleSync();
+    mActivity = rotateToLandscape();
     onView(withText(R.string.project_dialog_title)).check(matches(isDisplayed()));
     // Cancel
-    // TODO: Broken
     onView(withId(android.R.id.button2)).perform(click());
     onView(withText(R.string.project_dialog_title)).check(doesNotExist());
   }
@@ -217,5 +234,19 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
       assertEquals(projects[i], projectAdapter.getItem(i));
     }
     assertEquals(mContext.getString(R.string.project_add), projectAdapter.getItem(projectAdapter.getCount() - 1));
+  }
+
+  /**
+   * Rotates the device to landscape and waits for it to finish.
+   *
+   * @return The new Activity.
+   */
+  private Activity rotateToLandscape() {
+    mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    Instrumentation.ActivityMonitor monitor =
+        new Instrumentation.ActivityMonitor(MainActivity.class.getName(), null, false);
+    getInstrumentation().addMonitor(monitor);
+    getInstrumentation().waitForIdleSync();
+    return getInstrumentation().waitForMonitor(monitor);
   }
 }
