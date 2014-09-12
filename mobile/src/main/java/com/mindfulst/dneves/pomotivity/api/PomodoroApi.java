@@ -459,4 +459,8 @@ public class PomodoroApi {
   public PomodoroEventListener getPomodoroListener() {
     return mListener;
   }
+
+  public Stats getStats() {
+    return mStats;
+  }
 }
