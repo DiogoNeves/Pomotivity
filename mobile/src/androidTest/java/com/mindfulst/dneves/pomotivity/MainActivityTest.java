@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.hasToString;
 /**
  * Tests the MainActivity.
  */
-public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<MainActivity> {
+public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
   private static final int    INITIAL_PROJECT_ADAPTER_COUNT = 1;
   private static final String TEST_PROJECT_NAME             = "Test Project 1";
   private static final String TEST_ADD_PROJECT_NAME         = "Test Project 2";
@@ -50,7 +50,7 @@ public class MainActivityPortraitTest extends ActivityInstrumentationTestCase2<M
   /**
    * Creates the default test.
    */
-  public MainActivityPortraitTest() {
+  public MainActivityTest() {
     super(MainActivity.class);
   }
 
