@@ -19,5 +19,6 @@
     <string name="project_dialog_ok">OK</string>
     <string name="project_dialog_cancel">Cancel</string>
     <string name="project_reserved_warning">%s is a reserved Project Name</string>
+    <string name="dialog_fragment_tag">add_project_dialog</string>
 
 </resources>

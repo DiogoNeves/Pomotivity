@@ -120,7 +120,7 @@ public class MainActivity extends Activity {
    */
   private void showProjectDialog() {
     DialogFragment addProjectDialog = AddProjectDialogFragment.newInstance();
-    addProjectDialog.show(getFragmentManager(), "add_project_dialog");
+    addProjectDialog.show(getFragmentManager(), getString(R.string.dialog_fragment_tag));
   }
 
   @Override

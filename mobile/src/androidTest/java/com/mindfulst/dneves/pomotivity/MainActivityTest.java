@@ -2,6 +2,8 @@ package com.mindfulst.dneves.pomotivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -84,6 +86,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
   @Override
   protected void tearDown() throws Exception {
     mApi.stop();
+    dismissDialogue();
     super.tearDown();
   }
 
@@ -168,9 +171,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
   public void testAddProjectDialog() {
     selectAddProject();
     onView(withText(R.string.project_dialog_title)).check(matches(isDisplayed()));
-    // Cancel
-    onView(withId(android.R.id.button2)).perform(click());
-    onView(withText(R.string.project_dialog_title)).check(doesNotExist());
   }
 
   /**
@@ -201,10 +201,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
   public void testRotatingWhileShowingDialogue() {
     selectAddProject();
     mActivity = rotateToLandscape();
+    assertEquals(Configuration.ORIENTATION_LANDSCAPE, mActivity.getResources().getConfiguration().orientation);
     onView(withText(R.string.project_dialog_title)).check(matches(isDisplayed()));
-    // Cancel
-    onView(withId(android.R.id.button2)).perform(click());
-    onView(withText(R.string.project_dialog_title)).check(doesNotExist());
   }
 
   /**
@@ -248,5 +246,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     getInstrumentation().addMonitor(monitor);
     getInstrumentation().waitForIdleSync();
     return getInstrumentation().waitForMonitor(monitor);
+  }
+
+  private void dismissDialogue() {
+    DialogFragment dialog = (DialogFragment) mActivity.getFragmentManager().findFragmentByTag(getActivity().getString(R.string.dialog_fragment_tag));
+    if (dialog != null) {
+      dialog.dismissAllowingStateLoss();
+    }
   }
 }
