@@ -61,17 +61,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
    *
    * @throws Exception
    */
-  @SuppressLint("CommitPrefEdits")
   @Override
   protected void setUp() throws Exception {
     super.setUp();
 
     mContext = getInstrumentation().getTargetContext();
-    SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-    SharedPreferences.Editor editor = prefs.edit().clear();
-    editor.putStringSet(mContext.getString(R.string.projects_key),
-                        new HashSet<String>(Arrays.asList(TEST_PROJECT_NAME + ",1")));
-    editor.commit();
+    resetPreferences();
 
     mActivity = getActivity();
     mApi = MainActivity.PomodoroApiWrapper.getOrCreate();
@@ -110,7 +105,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
    */
   public void testLandscapePreConditions() {
     PomodoroApi.PomodoroEventListener originalListener = mApi.getPomodoroListener();
-    mActivity = rotateToLandscape();
+    rotateToLandscape();
     assertEquals(mApi, MainActivity.PomodoroApiWrapper.getOrCreate());
     assertNotNull(mApi.getPomodoroListener());
     assertNotSame(originalListener, mApi.getPomodoroListener());
@@ -200,15 +195,45 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
    */
   public void testRotatingWhileShowingDialogue() {
     selectAddProject();
-    mActivity = rotateToLandscape();
+    rotateToLandscape();
     assertEquals(Configuration.ORIENTATION_LANDSCAPE, mActivity.getResources().getConfiguration().orientation);
     onView(withText(R.string.project_dialog_title)).check(matches(isDisplayed()));
   }
 
   /**
-   * Tests if typeing a project name and rotating keeps the project name there.
+   * Tests if typing a project name and rotating keeps the project name there.
    */
   public void testTypingProjectAndRotate() {
+    selectAddProject();
+    onView(withId(R.id.project_name_box)).perform(typeText(TEST_ADD_PROJECT_NAME));
+    rotateToLandscape();
+    onView(withId(R.id.project_name_box)).check(matches(withText(TEST_ADD_PROJECT_NAME)));
+  }
+
+  /**
+   * Tests if setting a few values in the api and rotating keeps the right values.
+   */
+  @SuppressLint("CommitPrefEdits")
+  public void testRotatingAfterApiChange() {
+    // Load different values for the Api and Stats
+    // Reset back to the original test values
+    // Rotate and check if the onCreate wrongly loads the old values
+
+    SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = prefs.edit().clear();
+    editor.putInt(mContext.getString(R.string.all_time_key), 4);
+    editor.putBoolean(mContext.getString(R.string.auto_start_key), true);
+    editor.putStringSet(mContext.getString(R.string.projects_key),
+                        new HashSet<String>(Arrays.asList(TEST_PROJECT_NAME + ",1")));
+    editor.commit();
+    mApi.load(mContext, prefs);
+    resetPreferences();
+    mApi.setCurrentProject(TEST_ADD_PROJECT_NAME);
+
+    rotateToLandscape();
+    assertTrue(mApi.getAutoStart());
+    assertEquals(TEST_ADD_PROJECT_NAME, mApi.getCurrentProject());
+    assertEquals(4, mApi.getStats().allTime);
   }
 
   /**
@@ -236,22 +261,30 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
   /**
    * Rotates the device to landscape and waits for it to finish.
-   *
-   * @return The new Activity.
    */
-  private Activity rotateToLandscape() {
+  private void rotateToLandscape() {
     mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     Instrumentation.ActivityMonitor monitor =
         new Instrumentation.ActivityMonitor(MainActivity.class.getName(), null, false);
     getInstrumentation().addMonitor(monitor);
     getInstrumentation().waitForIdleSync();
-    return getInstrumentation().waitForMonitor(monitor);
+    mActivity = getInstrumentation().waitForMonitor(monitor);
   }
 
   private void dismissDialogue() {
     DialogFragment dialog = (DialogFragment) mActivity.getFragmentManager().findFragmentByTag(getActivity().getString(R.string.dialog_fragment_tag));
     if (dialog != null) {
       dialog.dismissAllowingStateLoss();
+      getInstrumentation().waitForIdleSync();
     }
+  }
+
+  @SuppressLint("CommitPrefEdits")
+  private void resetPreferences() {
+    SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = prefs.edit().clear();
+    editor.putStringSet(mContext.getString(R.string.projects_key),
+                        new HashSet<String>(Arrays.asList(TEST_PROJECT_NAME + ",1")));
+    editor.commit();
   }
 }
